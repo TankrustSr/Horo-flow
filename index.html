@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chronos Flow v17: Precision</title>
+    <title>Chronos Flow v18: Stable</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,7 +23,6 @@
         h1 { margin: 0 0 5px 0; color: #fff; font-weight: 400; letter-spacing: 3px; font-family: 'Cinzel', serif; }
         .sub { font-size: 0.8em; color: #00e5ff; margin-bottom: 20px; letter-spacing: 1px; }
 
-        /* Font Status Indicator */
         #font-status {
             position: absolute; top: 20px; right: 20px;
             font-size: 0.7em; color: #555; display: flex; align-items: center; gap: 5px;
@@ -107,7 +106,6 @@
         .btn-dl { background: #444; color: #fff; }
         .btn-dl:hover { background: #555; }
         
-        /* Font Previews in Dropdown */
         option.opt-cinzel { font-family: 'Cinzel', serif; }
         option.opt-philo { font-family: 'Philosopher', sans-serif; }
         option.opt-tenor { font-family: 'Tenor Sans', sans-serif; }
@@ -118,8 +116,8 @@
 
     <div id="font-status"><div class="status-dot" id="status-dot"></div> <span id="status-text">Loading Fonts...</span></div>
 
-    <h1>Chronos Flow v17</h1>
-    <div class="sub">X/Y Alignment & Distinct Fonts</div>
+    <h1>Chronos Flow v18</h1>
+    <div class="sub">Stable Release</div>
 
     <div class="container">
         <canvas id="canvas" width="600" height="600"></canvas>
@@ -136,11 +134,11 @@
                 <input type="range" id="repel" min="0" max="150" value="50" oninput="uiChange()">
             </div>
             <div>
-                <label>Density <span id="val_dens">2500</span></label>
+                <label>Density <span id="val_density">2500</span></label>
                 <input type="range" id="density" min="500" max="5000" step="500" value="2500" oninput="uiChange()">
             </div>
             <div>
-                <label>Line Length <span id="val_len">100</span></label>
+                <label>Line Length <span id="val_length">100</span></label>
                 <input type="range" id="length" min="20" max="300" value="100" oninput="uiChange()">
             </div>
         </div>
@@ -162,7 +160,7 @@
                 <input type="range" id="z_r1" min="4" max="40" value="18" oninput="uiChange()">
                 <label>Deflection <span id="val_f_r1">1.5</span></label>
                 <input type="range" id="f_r1" min="0.5" max="5.0" step="0.1" value="1.5" oninput="uiChange()">
-                <label>Graduality <span id="val_sm_r1">3.0</span></label>
+                <label>Flow Graduality <span id="val_sm_r1">3.0</span></label>
                 <input type="range" id="sm_r1" min="1.0" max="6.0" step="0.5" value="3.0" oninput="uiChange()">
                 
                 <div class="type-block">
@@ -177,9 +175,9 @@
                     </select>
                     <label>Size <span id="val_ts_r1">14</span></label>
                     <input type="range" id="ts_r1" min="8" max="40" value="14" oninput="uiChange()">
-                    <label>X-Nudge (Left/Right) <span id="val_tx_r1">0</span></label>
+                    <label>X-Nudge <span id="val_tx_r1">0</span></label>
                     <input type="range" id="tx_r1" min="-10" max="10" step="1" value="0" oninput="uiChange()">
-                    <label>Y-Nudge (Up/Down) <span id="val_ty_r1">0</span></label>
+                    <label>Y-Nudge <span id="val_ty_r1">0</span></label>
                     <input type="range" id="ty_r1" min="-10" max="10" step="1" value="0" oninput="uiChange()">
                 </div>
             </div>
@@ -213,7 +211,7 @@
                         <option value="'Cinzel', serif">Cinzel</option>
                         <option value="'Philosopher', sans-serif">Philosopher</option>
                         <option value="'Tenor Sans', sans-serif">Tenor</option>
-                        <option value="'Great Vibes', cursive">Script</option>
+                        <option value="'Great Vibes', cursive">Great Vibes</option>
                     </select>
                     <label>Size <span id="val_ts_r2">10</span></label>
                     <input type="range" id="ts_r2" min="8" max="40" value="10" oninput="uiChange()">
@@ -266,7 +264,8 @@
     </div>
 
 <script>
-    window.onerror = function(msg, url, line) { alert("Error: " + msg); return false; };
+    // Robust Error Handling
+    window.onerror = function(msg, url, line) { alert("Script Error: " + msg); return false; };
 
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
@@ -283,9 +282,10 @@
     document.fonts.ready.then(() => {
         const dot = document.getElementById('status-dot');
         const txt = document.getElementById('status-text');
-        dot.classList.add('ready');
-        txt.innerText = "Fonts Ready";
-        // Force regen to apply fonts
+        if(dot) {
+            dot.classList.add('ready');
+            txt.innerText = "Fonts Ready";
+        }
         setTimeout(generate, 100);
     });
 
@@ -299,13 +299,18 @@
     }
 
     function uiChange() {
+        // FIXED IDS HERE (val_density, val_length)
         ['swirl','repel','density','length'].forEach(id => {
-            document.getElementById('val_'+id).innerText = document.getElementById(id).value;
+            const el = document.getElementById(id);
+            const disp = document.getElementById('val_' + id);
+            if(el && disp) disp.innerText = el.value;
         });
+        
         ringIds.forEach(id => {
             ['c','d','z','f','sm','ts','tx','ty'].forEach(k => {
                 const el = document.getElementById(k+'_'+id);
-                if(el) document.getElementById('val_'+k+'_'+id).innerText = el.value;
+                const disp = document.getElementById('val_'+k+'_'+id);
+                if(el && disp) disp.innerText = el.value;
             });
         });
     }
@@ -329,7 +334,6 @@
         }
         
         if(fill) { 
-            // Paint BG white
             ctx.fillStyle = "#fff"; 
             ctx.fill(); 
             ctx.stroke(); 
@@ -343,7 +347,6 @@
             ctx.font = `400 ${o.textSize}px ${o.font}`; 
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            // Apply Manual Nudges
             ctx.fillText(o.textVal, o.x + o.tx, o.y + o.ty); 
             ctx.restore();
         }
@@ -518,7 +521,6 @@
         
         if(o.text) {
             let family = o.font.split(',')[0].replace(/"/g, '').replace(/'/g, ''); 
-            // SVG Text manual adjust
             s += `<text x="${o.x + o.tx}" y="${o.y + o.ty}" font-family="${family}" font-weight="400" font-size="${o.textSize}" text-anchor="middle" dominant-baseline="central" fill="black">${o.textVal}</text>`;
         }
         return s;
@@ -526,10 +528,7 @@
 
     function downloadSVG() {
         let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
-        
-        // Embed Fonts
-        svg += `<style>@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Tenor+Sans&display=swap');</style>`;
-        
+        svg += `<style>@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Tenor+Sans&family=Great+Vibes&display=swap');</style>`;
         svg += `<rect width="100%" height="100%" fill="white"/>`;
         svg += `<g fill="none" stroke="black" stroke-width="0.5" opacity="0.8">`;
         paths.forEach(p => {
@@ -547,12 +546,11 @@
         const blob = new Blob([svg], {type:"image/svg+xml"});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href=url; a.download="chronos_precision.svg";
+        a.href=url; a.download="chronos_artsy.svg";
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
     }
 
     uiChange();
-    // Re-trigger generate when fonts ready
     setTimeout(generate, 1000);
 
 </script>
