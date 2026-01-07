@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronos Flow v17: Precision</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Tenor+Sans&family=Great+Vibes&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #121212;
+            color: #ddd;
+            font-family: 'Tenor Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { margin: 0 0 5px 0; color: #fff; font-weight: 400; letter-spacing: 3px; font-family: 'Cinzel', serif; }
+        .sub { font-size: 0.8em; color: #00e5ff; margin-bottom: 20px; letter-spacing: 1px; }
+
+        /* Font Status Indicator */
+        #font-status {
+            position: absolute; top: 20px; right: 20px;
+            font-size: 0.7em; color: #555; display: flex; align-items: center; gap: 5px;
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #f00; box-shadow: 0 0 5px #f00; transition: background 0.3s; }
+        .status-dot.ready { background: #0f0; box-shadow: 0 0 5px #0f0; }
+
+        .container {
+            position: relative;
+            width: 600px; height: 600px;
+            background: #fff;
+            border-radius: 50%;
+            border: 4px solid #333;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        canvas { display: block; }
+        
+        .controls {
+            background: #222;
+            padding: 20px;
+            border-radius: 8px;
+            width: 950px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .global-controls {
+            grid-column: span 3;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            border: 1px solid #444;
+        }
+        
+        .ring-block {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #444;
+        }
+
+        h3 { margin: 0 0 10px 0; color: #fff; font-size: 0.9em; border-bottom: 1px solid #555; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .type-block {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed #555;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .type-header { font-size: 0.7em; color: #888; text-transform: uppercase; margin-bottom: 8px; font-weight: bold; letter-spacing: 1px; }
+
+        .slider-wrapper { transition: opacity 0.2s; }
+        .slider-wrapper.disabled { opacity: 0.3; pointer-events: none; }
+        
+        label { display: flex; justify-content: space-between; font-size: 0.75em; margin-bottom: 3px; color: #aaa; }
+        span.val { color: #00e5ff; font-family: monospace; }
+        
+        input[type=range] { width: 100%; margin-bottom: 8px; cursor: pointer; accent-color: #00e5ff; height: 4px;}
+        select { width: 100%; margin-bottom: 8px; background: #444; color: #fff; border: 1px solid #555; padding: 4px; border-radius: 4px; font-family: sans-serif;}
+        input[type=checkbox] { accent-color: #00e5ff; width: 16px; height: 16px; cursor: pointer; }
+
+        .actions {
+            grid-column: span 3;
+            display: flex; gap: 10px; margin-top: 10px;
+        }
+        button {
+            padding: 15px; border: none; font-weight: bold; cursor: pointer; flex: 1; border-radius: 4px;
+            font-size: 1em; text-transform: uppercase;
+        }
+        .btn-gen { background: #00e5ff; color: #000; }
+        .btn-gen:hover { background: #66e0ff; }
+        .btn-dl { background: #444; color: #fff; }
+        .btn-dl:hover { background: #555; }
+        
+        /* Font Previews in Dropdown */
+        option.opt-cinzel { font-family: 'Cinzel', serif; }
+        option.opt-philo { font-family: 'Philosopher', sans-serif; }
+        option.opt-tenor { font-family: 'Tenor Sans', sans-serif; }
+        option.opt-vibes { font-family: 'Great Vibes', cursive; }
+    </style>
+</head>
+<body>
+
+    <div id="font-status"><div class="status-dot" id="status-dot"></div> <span id="status-text">Loading Fonts...</span></div>
+
+    <h1>Chronos Flow v17</h1>
+    <div class="sub">X/Y Alignment & Distinct Fonts</div>
+
+    <div class="container">
+        <canvas id="canvas" width="600" height="600"></canvas>
+    </div>
+
+    <div class="controls">
+        <div class="global-controls">
+            <div>
+                <label>Swirl <span id="val_swirl">0.5</span></label>
+                <input type="range" id="swirl" min="-1.5" max="1.5" step="0.1" value="0.5" oninput="uiChange()">
+            </div>
+            <div>
+                <label>Center Repel <span id="val_repel">50</span></label>
+                <input type="range" id="repel" min="0" max="150" value="50" oninput="uiChange()">
+            </div>
+            <div>
+                <label>Density <span id="val_dens">2500</span></label>
+                <input type="range" id="density" min="500" max="5000" step="500" value="2500" oninput="uiChange()">
+            </div>
+            <div>
+                <label>Line Length <span id="val_len">100</span></label>
+                <input type="range" id="length" min="20" max="300" value="100" oninput="uiChange()">
+            </div>
+        </div>
+
+        <div class="ring-block">
+            <h3>Inner Ring <input type="checkbox" id="on_r1" checked onchange="toggle('r1')"></h3>
+            <div id="wrap_r1" class="slider-wrapper">
+                <label>Count <span id="val_c_r1">12</span></label>
+                <input type="range" id="c_r1" min="1" max="24" value="12" oninput="uiChange()">
+                <label>Distance <span id="val_d_r1">160</span></label>
+                <input type="range" id="d_r1" min="50" max="290" value="160" oninput="uiChange()">
+                <label>Shape</label>
+                <select id="s_r1" onchange="generate()">
+                    <option value="round">Round</option>
+                    <option value="square">Square</option>
+                    <option value="baton">Baton</option>
+                </select>
+                <label>Size <span id="val_z_r1">18</span></label>
+                <input type="range" id="z_r1" min="4" max="40" value="18" oninput="uiChange()">
+                <label>Deflection <span id="val_f_r1">1.5</span></label>
+                <input type="range" id="f_r1" min="0.5" max="5.0" step="0.1" value="1.5" oninput="uiChange()">
+                <label>Graduality <span id="val_sm_r1">3.0</span></label>
+                <input type="range" id="sm_r1" min="1.0" max="6.0" step="0.5" value="3.0" oninput="uiChange()">
+                
+                <div class="type-block">
+                    <div class="type-header">Typography</div>
+                    <label>Show Numbers <input type="checkbox" id="txt_on_r1" checked onchange="generate()"></label>
+                    <label>Font</label>
+                    <select id="font_r1" onchange="generate()">
+                        <option value="'Cinzel', serif" class="opt-cinzel">Cinzel (Roman)</option>
+                        <option value="'Philosopher', sans-serif" class="opt-philo">Philosopher (Artsy)</option>
+                        <option value="'Tenor Sans', sans-serif" class="opt-tenor">Tenor (Modern)</option>
+                        <option value="'Great Vibes', cursive" class="opt-vibes">Script</option>
+                    </select>
+                    <label>Size <span id="val_ts_r1">14</span></label>
+                    <input type="range" id="ts_r1" min="8" max="40" value="14" oninput="uiChange()">
+                    <label>X-Nudge (Left/Right) <span id="val_tx_r1">0</span></label>
+                    <input type="range" id="tx_r1" min="-10" max="10" step="1" value="0" oninput="uiChange()">
+                    <label>Y-Nudge (Up/Down) <span id="val_ty_r1">0</span></label>
+                    <input type="range" id="ty_r1" min="-10" max="10" step="1" value="0" oninput="uiChange()">
+                </div>
+            </div>
+        </div>
+
+        <div class="ring-block">
+            <h3>Middle Ring <input type="checkbox" id="on_r2" checked onchange="toggle('r2')"></h3>
+            <div id="wrap_r2" class="slider-wrapper">
+                <label>Count <span id="val_c_r2">4</span></label>
+                <input type="range" id="c_r2" min="1" max="60" value="4" oninput="uiChange()">
+                <label>Distance <span id="val_d_r2">220</span></label>
+                <input type="range" id="d_r2" min="50" max="290" value="220" oninput="uiChange()">
+                <label>Shape</label>
+                <select id="s_r2" onchange="generate()">
+                    <option value="diamond">Diamond</option>
+                    <option value="round">Round</option>
+                    <option value="square">Square</option>
+                </select>
+                <label>Size <span id="val_z_r2">15</span></label>
+                <input type="range" id="z_r2" min="4" max="40" value="15" oninput="uiChange()">
+                <label>Deflection <span id="val_f_r2">2.0</span></label>
+                <input type="range" id="f_r2" min="0.5" max="5.0" step="0.1" value="2.0" oninput="uiChange()">
+                <label>Graduality <span id="val_sm_r2">4.0</span></label>
+                <input type="range" id="sm_r2" min="1.0" max="6.0" step="0.5" value="4.0" oninput="uiChange()">
+
+                <div class="type-block">
+                    <div class="type-header">Typography</div>
+                    <label>Show Numbers <input type="checkbox" id="txt_on_r2" onchange="generate()"></label>
+                    <label>Font</label>
+                    <select id="font_r2" onchange="generate()">
+                        <option value="'Cinzel', serif">Cinzel</option>
+                        <option value="'Philosopher', sans-serif">Philosopher</option>
+                        <option value="'Tenor Sans', sans-serif">Tenor</option>
+                        <option value="'Great Vibes', cursive">Script</option>
+                    </select>
+                    <label>Size <span id="val_ts_r2">10</span></label>
+                    <input type="range" id="ts_r2" min="8" max="40" value="10" oninput="uiChange()">
+                    <label>X-Nudge <span id="val_tx_r2">0</span></label>
+                    <input type="range" id="tx_r2" min="-10" max="10" step="1" value="0" oninput="uiChange()">
+                    <label>Y-Nudge <span id="val_ty_r2">0</span></label>
+                    <input type="range" id="ty_r2" min="-10" max="10" step="1" value="0" oninput="uiChange()">
+                </div>
+            </div>
+        </div>
+
+        <div class="ring-block">
+            <h3>Outer Ring <input type="checkbox" id="on_r3" checked onchange="toggle('r3')"></h3>
+            <div id="wrap_r3" class="slider-wrapper">
+                <label>Count <span id="val_c_r3">60</span></label>
+                <input type="range" id="c_r3" min="1" max="60" value="60" oninput="uiChange()">
+                <label>Distance <span id="val_d_r3">280</span></label>
+                <input type="range" id="d_r3" min="50" max="290" value="280" oninput="uiChange()">
+                <label>Shape</label>
+                <select id="s_r3" onchange="generate()">
+                    <option value="baton">Baton</option>
+                    <option value="round">Round</option>
+                    <option value="square">Square</option>
+                </select>
+                <label>Size <span id="val_z_r3">4</span></label>
+                <input type="range" id="z_r3" min="2" max="20" value="4" oninput="uiChange()">
+                <label>Deflection <span id="val_f_r3">1.5</span></label>
+                <input type="range" id="f_r3" min="0.5" max="5.0" step="0.1" value="1.5" oninput="uiChange()">
+                <label>Graduality <span id="val_sm_r3">2.0</span></label>
+                <input type="range" id="sm_r3" min="1.0" max="6.0" step="0.5" value="2.0" oninput="uiChange()">
+
+                <div class="type-block">
+                    <div class="type-header">Typography</div>
+                    <label>Show Numbers <input type="checkbox" id="txt_on_r3" onchange="generate()"></label>
+                    <select id="font_r3" style="display:none"><option>Arial</option></select>
+                    <label>Size <span id="val_ts_r3">6</span></label>
+                    <input type="range" id="ts_r3" min="4" max="20" value="6" oninput="uiChange()">
+                    <label>X-Nudge <span id="val_tx_r3">0</span></label>
+                    <input type="range" id="tx_r3" min="-10" max="10" step="1" value="0" oninput="uiChange()">
+                    <label>Y-Nudge <span id="val_ty_r3">0</span></label>
+                    <input type="range" id="ty_r3" min="-10" max="10" step="1" value="0" oninput="uiChange()">
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn-gen" onclick="generate()">Regenerate</button>
+            <button class="btn-dl" onclick="downloadSVG()">Download SVG</button>
+        </div>
+    </div>
+
+<script>
+    window.onerror = function(msg, url, line) { alert("Error: " + msg); return false; };
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const width = 600;
+    const height = 600;
+    const cx = 300;
+    const cy = 300;
+    const ringIds = ['r1', 'r2', 'r3'];
+    
+    let obstacles = [];
+    let paths = [];
+
+    // Font Loading Check
+    document.fonts.ready.then(() => {
+        const dot = document.getElementById('status-dot');
+        const txt = document.getElementById('status-text');
+        dot.classList.add('ready');
+        txt.innerText = "Fonts Ready";
+        // Force regen to apply fonts
+        setTimeout(generate, 100);
+    });
+
+    // UI Logic
+    function toggle(id) {
+        const checkbox = document.getElementById('on_' + id);
+        const wrapper = document.getElementById('wrap_' + id);
+        if(checkbox.checked) wrapper.classList.remove('disabled');
+        else wrapper.classList.add('disabled');
+        generate();
+    }
+
+    function uiChange() {
+        ['swirl','repel','density','length'].forEach(id => {
+            document.getElementById('val_'+id).innerText = document.getElementById(id).value;
+        });
+        ringIds.forEach(id => {
+            ['c','d','z','f','sm','ts','tx','ty'].forEach(k => {
+                const el = document.getElementById(k+'_'+id);
+                if(el) document.getElementById('val_'+k+'_'+id).innerText = el.value;
+            });
+        });
+    }
+
+    // Geometry Helpers
+    function drawShape(ctx, o, fill) {
+        ctx.save();
+        ctx.translate(o.x, o.y);
+        ctx.rotate(o.angle);
+        ctx.beginPath();
+        if(o.type==='round') ctx.arc(0,0, o.w, 0, Math.PI*2);
+        else if(o.type==='square') ctx.rect(-o.w,-o.w, o.w*2, o.w*2);
+        else if(o.type==='baton') {
+            let x=-o.w/2, y=-o.h/2, w=o.w, h=o.h, r=o.w/2;
+            ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+            ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+            ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+            ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
+        } else if(o.type==='diamond') {
+             ctx.moveTo(0, -o.h/1.5); ctx.lineTo(o.w/1.5, 0); ctx.lineTo(0, o.h/1.5); ctx.lineTo(-o.w/1.5, 0); ctx.closePath();
+        }
+        
+        if(fill) { 
+            // Paint BG white
+            ctx.fillStyle = "#fff"; 
+            ctx.fill(); 
+            ctx.stroke(); 
+        }
+        ctx.restore();
+
+        // Draw Text
+        if(o.text) {
+            ctx.save();
+            ctx.fillStyle = "#000";
+            ctx.font = `400 ${o.textSize}px ${o.font}`; 
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            // Apply Manual Nudges
+            ctx.fillText(o.textVal, o.x + o.tx, o.y + o.ty); 
+            ctx.restore();
+        }
+    }
+
+    function generateObstacles() {
+        obstacles = [];
+        obstacles.push({x:cx, y:cy, r:10, type:'round', force:1, smooth:1, w:10}); 
+
+        ringIds.forEach(rid => {
+            const checkbox = document.getElementById('on_'+rid);
+            if(!checkbox || !checkbox.checked) return;
+            
+            const count = parseInt(document.getElementById('c_'+rid).value);
+            const dist = parseInt(document.getElementById('d_'+rid).value);
+            const size = parseInt(document.getElementById('z_'+rid).value);
+            const shape = document.getElementById('s_'+rid).value;
+            const force = parseFloat(document.getElementById('f_'+rid).value);
+            const smooth = parseFloat(document.getElementById('sm_'+rid).value);
+            
+            const hasText = document.getElementById('txt_on_'+rid).checked;
+            const textSize = parseInt(document.getElementById('ts_'+rid).value);
+            const font = document.getElementById('font_'+rid).value;
+            const tx = parseInt(document.getElementById('tx_'+rid).value);
+            const ty = parseInt(document.getElementById('ty_'+rid).value);
+
+            let w = size; let h = size;
+            if(shape==='baton') h = size * 3;
+            if(shape==='diamond') h = size * 1.5;
+
+            for(let i=0; i<count; i++) {
+                const ang = (i/count)*Math.PI*2 - Math.PI/2;
+                
+                let label = (i + 1).toString();
+                if(count === 12) label = (i===0 ? "12" : i.toString());
+                
+                obstacles.push({
+                    x: cx + Math.cos(ang)*dist,
+                    y: cy + Math.sin(ang)*dist,
+                    angle: ang + Math.PI/2,
+                    type: shape,
+                    w: w, h: h,
+                    force: force,
+                    smooth: smooth,
+                    r: Math.max(w, h),
+                    text: hasText,
+                    textVal: label,
+                    textSize: textSize,
+                    font: font,
+                    tx: tx, ty: ty
+                });
+            }
+        });
+    }
+
+    function getFieldVector(x, y) {
+        let nx = x - cx;
+        let ny = y - cy;
+        let dist = Math.sqrt(nx*nx + ny*ny);
+        
+        const swirl = parseFloat(document.getElementById('swirl').value);
+        let ang = Math.atan2(ny, nx) + (swirl * dist / 300);
+        let vx = Math.cos(ang);
+        let vy = Math.sin(ang);
+
+        const c_repel = parseInt(document.getElementById('repel').value);
+        if(dist < c_repel && dist > 1) {
+            let str = (c_repel - dist) / c_repel;
+            vx += (nx/dist) * str * 4;
+            vy += (ny/dist) * str * 4;
+        }
+
+        obstacles.forEach((o, i) => {
+            if(i===0) return;
+            
+            let dx = x - o.x;
+            let dy = y - o.y;
+            let d = Math.sqrt(dx*dx + dy*dy);
+            
+            let fieldRadius = Math.max(o.w, o.h) * (0.8 + o.smooth); 
+            
+            if(d < fieldRadius && d > 0) {
+                let nx = dx / d;
+                let ny = dy / d;
+                let dot = vx * nx + vy * ny;
+                
+                let proximity = (fieldRadius - d) / fieldRadius;
+                proximity = proximity * proximity * proximity; 
+                
+                if (dot < 0) {
+                    vx -= nx * dot * proximity * 1.5;
+                    vy -= ny * dot * proximity * 1.5;
+                }
+                vx += nx * o.force * proximity * 0.5;
+                vy += ny * o.force * proximity * 0.5;
+            }
+        });
+
+        let l = Math.sqrt(vx*vx + vy*vy);
+        if(l>0) { vx/=l; vy/=l; }
+        return {x:vx*2, y:vy*2};
+    }
+
+    function generate() {
+        generateObstacles();
+        
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0,0,width,height);
+        
+        ctx.fillStyle = "#f0f0f0"; ctx.strokeStyle="#ddd";
+        obstacles.forEach((o,i)=>{ if(i>0) drawShape(ctx, o, true); });
+
+        const dens = parseInt(document.getElementById('density').value);
+        const len = parseInt(document.getElementById('length').value);
+        
+        paths = [];
+        ctx.strokeStyle = "rgba(0,0,0,0.6)";
+        ctx.lineWidth = 0.5;
+        
+        for(let i=0; i<dens; i++) {
+            let r = Math.sqrt(Math.random()) * (width/2 - 10);
+            let th = Math.random() * Math.PI * 2;
+            let px = cx + Math.cos(th)*r;
+            let py = cy + Math.sin(th)*r;
+            
+            let bad = false;
+            for(let o of obstacles) {
+                if(i>0 && Math.sqrt((px-o.x)**2 + (py-o.y)**2) < o.r) bad=true;
+            }
+            if(bad) continue;
+            
+            let path = [{x:px, y:py}];
+            ctx.beginPath();
+            ctx.moveTo(px, py);
+            
+            for(let s=0; s<len; s++) {
+                let v = getFieldVector(px, py);
+                px += v.x; py += v.y;
+                
+                let crash = false;
+                for(let o of obstacles) {
+                    if(i>0 && Math.sqrt((px-o.x)**2 + (py-o.y)**2) < Math.min(o.w, o.h)*0.95) crash=true;
+                }
+                if(crash) break;
+                if(px<0||px>width||py<0||py>height) break;
+                
+                path.push({x:px, y:py});
+                ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+            paths.push(path);
+        }
+        
+        ctx.strokeStyle = "#000"; ctx.lineWidth=2; 
+        obstacles.forEach((o,i)=>{ 
+            if(i>0) drawShape(ctx, o, true); 
+        });
+        
+        ctx.beginPath(); ctx.arc(cx, cy, 298, 0, Math.PI*2); ctx.stroke();
+    }
+
+    function getSvgShape(o) {
+        let x=o.x.toFixed(1), y=o.y.toFixed(1), rot=(o.angle*180/Math.PI).toFixed(1);
+        let s = '';
+        if(o.type==='round') s = `<circle cx="${x}" cy="${y}" r="${o.w}"/>`;
+        else if(o.type==='square') s = `<rect x="${-o.w}" y="${-o.w}" width="${o.w*2}" height="${o.w*2}" transform="translate(${x},${y}) rotate(${rot})"/>`;
+        else if(o.type==='baton') s = `<rect x="${-o.w/2}" y="${-o.h/2}" width="${o.w}" height="${o.h}" rx="${o.w/2}" transform="translate(${x},${y}) rotate(${rot})"/>`;
+        else if(o.type==='diamond') {
+             let pts = `0,-${o.h/1.5} ${o.w/1.5},0 0,${o.h/1.5} -${o.w/1.5},0`;
+             s = `<polygon points="${pts}" transform="translate(${x},${y}) rotate(${rot})"/>`;
+        }
+        
+        if(o.text) {
+            let family = o.font.split(',')[0].replace(/"/g, '').replace(/'/g, ''); 
+            // SVG Text manual adjust
+            s += `<text x="${o.x + o.tx}" y="${o.y + o.ty}" font-family="${family}" font-weight="400" font-size="${o.textSize}" text-anchor="middle" dominant-baseline="central" fill="black">${o.textVal}</text>`;
+        }
+        return s;
+    }
+
+    function downloadSVG() {
+        let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
+        
+        // Embed Fonts
+        svg += `<style>@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Tenor+Sans&display=swap');</style>`;
+        
+        svg += `<rect width="100%" height="100%" fill="white"/>`;
+        svg += `<g fill="none" stroke="black" stroke-width="0.5" opacity="0.8">`;
+        paths.forEach(p => {
+            if(p.length<2) return;
+            let d=`M${p[0].x.toFixed(1)},${p[0].y.toFixed(1)}`;
+            for(let i=1; i<p.length; i++) d+=` L${p[i].x.toFixed(1)},${p[i].y.toFixed(1)}`;
+            svg += `<path d="${d}"/>`;
+        });
+        svg += `</g>`;
+        svg += `<g fill="white" stroke="black" stroke-width="2">`;
+        obstacles.forEach((o,i)=>{ if(i>0) svg += getSvgShape(o); });
+        svg += `<circle cx="${cx}" cy="${cy}" r="298" fill="none" stroke-width="4"/>`;
+        svg += `</g></svg>`;
+        
+        const blob = new Blob([svg], {type:"image/svg+xml"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href=url; a.download="chronos_precision.svg";
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+
+    uiChange();
+    // Re-trigger generate when fonts ready
+    setTimeout(generate, 1000);
+
+</script>
+</body>
+</html>
