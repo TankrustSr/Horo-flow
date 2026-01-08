@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chronos Flow v18: Stable</title>
+    <title>Chronos Flow v20: Syntax Fix</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Tenor+Sans&family=Great+Vibes&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,700&family=Cinzel:wght@400;700&family=Great+Vibes&family=Italiana&family=Julius+Sans+One&family=Montserrat:wght@300;400;700&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Pinyon+Script&display=swap" rel="stylesheet">
 
     <style>
         body {
             background-color: #121212;
             color: #ddd;
-            font-family: 'Tenor Sans', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -106,18 +106,24 @@
         .btn-dl { background: #444; color: #fff; }
         .btn-dl:hover { background: #555; }
         
+        /* CSS Previews */
         option.opt-cinzel { font-family: 'Cinzel', serif; }
+        option.opt-bodoni { font-family: 'Bodoni Moda', serif; }
+        option.opt-italiana { font-family: 'Italiana', serif; }
+        option.opt-julius { font-family: 'Julius Sans One', sans-serif; }
+        option.opt-mont { font-family: 'Montserrat', sans-serif; }
         option.opt-philo { font-family: 'Philosopher', sans-serif; }
-        option.opt-tenor { font-family: 'Tenor Sans', sans-serif; }
         option.opt-vibes { font-family: 'Great Vibes', cursive; }
+        option.opt-pinyon { font-family: 'Pinyon Script', cursive; }
+        
     </style>
 </head>
 <body>
 
     <div id="font-status"><div class="status-dot" id="status-dot"></div> <span id="status-text">Loading Fonts...</span></div>
 
-    <h1>Chronos Flow v18</h1>
-    <div class="sub">Stable Release</div>
+    <h1>Chronos Flow v20</h1>
+    <div class="sub">Fixed Font Syntax</div>
 
     <div class="container">
         <canvas id="canvas" width="600" height="600"></canvas>
@@ -125,60 +131,39 @@
 
     <div class="controls">
         <div class="global-controls">
-            <div>
-                <label>Swirl <span id="val_swirl">0.5</span></label>
-                <input type="range" id="swirl" min="-1.5" max="1.5" step="0.1" value="0.5" oninput="uiChange()">
-            </div>
-            <div>
-                <label>Center Repel <span id="val_repel">50</span></label>
-                <input type="range" id="repel" min="0" max="150" value="50" oninput="uiChange()">
-            </div>
-            <div>
-                <label>Density <span id="val_density">2500</span></label>
-                <input type="range" id="density" min="500" max="5000" step="500" value="2500" oninput="uiChange()">
-            </div>
-            <div>
-                <label>Line Length <span id="val_length">100</span></label>
-                <input type="range" id="length" min="20" max="300" value="100" oninput="uiChange()">
-            </div>
+            <div><label>Swirl <span id="val_swirl">0.5</span></label><input type="range" id="swirl" min="-1.5" max="1.5" step="0.1" value="0.5" oninput="uiChange()"></div>
+            <div><label>Center Repel <span id="val_repel">50</span></label><input type="range" id="repel" min="0" max="150" value="50" oninput="uiChange()"></div>
+            <div><label>Density <span id="val_density">2500</span></label><input type="range" id="density" min="500" max="5000" step="500" value="2500" oninput="uiChange()"></div>
+            <div><label>Line Length <span id="val_length">100</span></label><input type="range" id="length" min="20" max="300" value="100" oninput="uiChange()"></div>
         </div>
 
         <div class="ring-block">
             <h3>Inner Ring <input type="checkbox" id="on_r1" checked onchange="toggle('r1')"></h3>
             <div id="wrap_r1" class="slider-wrapper">
-                <label>Count <span id="val_c_r1">12</span></label>
-                <input type="range" id="c_r1" min="1" max="24" value="12" oninput="uiChange()">
-                <label>Distance <span id="val_d_r1">160</span></label>
-                <input type="range" id="d_r1" min="50" max="290" value="160" oninput="uiChange()">
-                <label>Shape</label>
-                <select id="s_r1" onchange="generate()">
-                    <option value="round">Round</option>
-                    <option value="square">Square</option>
-                    <option value="baton">Baton</option>
-                </select>
-                <label>Size <span id="val_z_r1">18</span></label>
-                <input type="range" id="z_r1" min="4" max="40" value="18" oninput="uiChange()">
-                <label>Deflection <span id="val_f_r1">1.5</span></label>
-                <input type="range" id="f_r1" min="0.5" max="5.0" step="0.1" value="1.5" oninput="uiChange()">
-                <label>Flow Graduality <span id="val_sm_r1">3.0</span></label>
-                <input type="range" id="sm_r1" min="1.0" max="6.0" step="0.5" value="3.0" oninput="uiChange()">
+                <label>Count <span id="val_c_r1">12</span></label><input type="range" id="c_r1" min="1" max="24" value="12" oninput="uiChange()">
+                <label>Distance <span id="val_d_r1">160</span></label><input type="range" id="d_r1" min="50" max="290" value="160" oninput="uiChange()">
+                <label>Shape</label><select id="s_r1" onchange="generate()"><option value="round">Round</option><option value="square">Square</option><option value="baton">Baton</option></select>
+                <label>Size <span id="val_z_r1">18</span></label><input type="range" id="z_r1" min="4" max="40" value="18" oninput="uiChange()">
+                <label>Deflection <span id="val_f_r1">1.5</span></label><input type="range" id="f_r1" min="0.5" max="5.0" step="0.1" value="1.5" oninput="uiChange()">
+                <label>Flow Graduality <span id="val_sm_r1">3.0</span></label><input type="range" id="sm_r1" min="1.0" max="6.0" step="0.5" value="3.0" oninput="uiChange()">
                 
                 <div class="type-block">
                     <div class="type-header">Typography</div>
                     <label>Show Numbers <input type="checkbox" id="txt_on_r1" checked onchange="generate()"></label>
                     <label>Font</label>
                     <select id="font_r1" onchange="generate()">
-                        <option value="'Cinzel', serif" class="opt-cinzel">Cinzel (Roman)</option>
-                        <option value="'Philosopher', sans-serif" class="opt-philo">Philosopher (Artsy)</option>
-                        <option value="'Tenor Sans', sans-serif" class="opt-tenor">Tenor (Modern)</option>
-                        <option value="'Great Vibes', cursive" class="opt-vibes">Script</option>
+                        <option value="Cinzel" class="opt-cinzel">Cinzel (Roman)</option>
+                        <option value="Bodoni Moda" class="opt-bodoni">Bodoni (Luxury)</option>
+                        <option value="Philosopher" class="opt-philo">Philosopher (Artsy)</option>
+                        <option value="Italiana" class="opt-italiana">Italiana (Elegant)</option>
+                        <option value="Julius Sans One" class="opt-julius">Julius (Minimal)</option>
+                        <option value="Montserrat" class="opt-mont">Montserrat (Technical)</option>
+                        <option value="Pinyon Script" class="opt-pinyon">Pinyon (Romantic)</option>
+                        <option value="Great Vibes" class="opt-vibes">Great Vibes (Flowing)</option>
                     </select>
-                    <label>Size <span id="val_ts_r1">14</span></label>
-                    <input type="range" id="ts_r1" min="8" max="40" value="14" oninput="uiChange()">
-                    <label>X-Nudge <span id="val_tx_r1">0</span></label>
-                    <input type="range" id="tx_r1" min="-10" max="10" step="1" value="0" oninput="uiChange()">
-                    <label>Y-Nudge <span id="val_ty_r1">0</span></label>
-                    <input type="range" id="ty_r1" min="-10" max="10" step="1" value="0" oninput="uiChange()">
+                    <label>Size <span id="val_ts_r1">14</span></label><input type="range" id="ts_r1" min="8" max="40" value="14" oninput="uiChange()">
+                    <label>X-Nudge <span id="val_tx_r1">0</span></label><input type="range" id="tx_r1" min="-10" max="10" step="1" value="0" oninput="uiChange()">
+                    <label>Y-Nudge <span id="val_ty_r1">0</span></label><input type="range" id="ty_r1" min="-10" max="10" step="1" value="0" oninput="uiChange()">
                 </div>
             </div>
         </div>
@@ -186,39 +171,27 @@
         <div class="ring-block">
             <h3>Middle Ring <input type="checkbox" id="on_r2" checked onchange="toggle('r2')"></h3>
             <div id="wrap_r2" class="slider-wrapper">
-                <label>Count <span id="val_c_r2">4</span></label>
-                <input type="range" id="c_r2" min="1" max="60" value="4" oninput="uiChange()">
-                <label>Distance <span id="val_d_r2">220</span></label>
-                <input type="range" id="d_r2" min="50" max="290" value="220" oninput="uiChange()">
-                <label>Shape</label>
-                <select id="s_r2" onchange="generate()">
-                    <option value="diamond">Diamond</option>
-                    <option value="round">Round</option>
-                    <option value="square">Square</option>
-                </select>
-                <label>Size <span id="val_z_r2">15</span></label>
-                <input type="range" id="z_r2" min="4" max="40" value="15" oninput="uiChange()">
-                <label>Deflection <span id="val_f_r2">2.0</span></label>
-                <input type="range" id="f_r2" min="0.5" max="5.0" step="0.1" value="2.0" oninput="uiChange()">
-                <label>Graduality <span id="val_sm_r2">4.0</span></label>
-                <input type="range" id="sm_r2" min="1.0" max="6.0" step="0.5" value="4.0" oninput="uiChange()">
+                <label>Count <span id="val_c_r2">4</span></label><input type="range" id="c_r2" min="1" max="60" value="4" oninput="uiChange()">
+                <label>Distance <span id="val_d_r2">220</span></label><input type="range" id="d_r2" min="50" max="290" value="220" oninput="uiChange()">
+                <label>Shape</label><select id="s_r2" onchange="generate()"><option value="diamond">Diamond</option><option value="round">Round</option><option value="square">Square</option></select>
+                <label>Size <span id="val_z_r2">15</span></label><input type="range" id="z_r2" min="4" max="40" value="15" oninput="uiChange()">
+                <label>Deflection <span id="val_f_r2">2.0</span></label><input type="range" id="f_r2" min="0.5" max="5.0" step="0.1" value="2.0" oninput="uiChange()">
+                <label>Graduality <span id="val_sm_r2">4.0</span></label><input type="range" id="sm_r2" min="1.0" max="6.0" step="0.5" value="4.0" oninput="uiChange()">
 
                 <div class="type-block">
                     <div class="type-header">Typography</div>
                     <label>Show Numbers <input type="checkbox" id="txt_on_r2" onchange="generate()"></label>
                     <label>Font</label>
                     <select id="font_r2" onchange="generate()">
-                        <option value="'Cinzel', serif">Cinzel</option>
-                        <option value="'Philosopher', sans-serif">Philosopher</option>
-                        <option value="'Tenor Sans', sans-serif">Tenor</option>
-                        <option value="'Great Vibes', cursive">Great Vibes</option>
+                        <option value="Cinzel" class="opt-cinzel">Cinzel</option>
+                        <option value="Bodoni Moda" class="opt-bodoni">Bodoni</option>
+                        <option value="Italiana" class="opt-italiana">Italiana</option>
+                        <option value="Julius Sans One" class="opt-julius">Julius</option>
+                        <option value="Pinyon Script" class="opt-pinyon">Pinyon</option>
                     </select>
-                    <label>Size <span id="val_ts_r2">10</span></label>
-                    <input type="range" id="ts_r2" min="8" max="40" value="10" oninput="uiChange()">
-                    <label>X-Nudge <span id="val_tx_r2">0</span></label>
-                    <input type="range" id="tx_r2" min="-10" max="10" step="1" value="0" oninput="uiChange()">
-                    <label>Y-Nudge <span id="val_ty_r2">0</span></label>
-                    <input type="range" id="ty_r2" min="-10" max="10" step="1" value="0" oninput="uiChange()">
+                    <label>Size <span id="val_ts_r2">10</span></label><input type="range" id="ts_r2" min="8" max="40" value="10" oninput="uiChange()">
+                    <label>X-Nudge <span id="val_tx_r2">0</span></label><input type="range" id="tx_r2" min="-10" max="10" step="1" value="0" oninput="uiChange()">
+                    <label>Y-Nudge <span id="val_ty_r2">0</span></label><input type="range" id="ty_r2" min="-10" max="10" step="1" value="0" oninput="uiChange()">
                 </div>
             </div>
         </div>
@@ -226,33 +199,20 @@
         <div class="ring-block">
             <h3>Outer Ring <input type="checkbox" id="on_r3" checked onchange="toggle('r3')"></h3>
             <div id="wrap_r3" class="slider-wrapper">
-                <label>Count <span id="val_c_r3">60</span></label>
-                <input type="range" id="c_r3" min="1" max="60" value="60" oninput="uiChange()">
-                <label>Distance <span id="val_d_r3">280</span></label>
-                <input type="range" id="d_r3" min="50" max="290" value="280" oninput="uiChange()">
-                <label>Shape</label>
-                <select id="s_r3" onchange="generate()">
-                    <option value="baton">Baton</option>
-                    <option value="round">Round</option>
-                    <option value="square">Square</option>
-                </select>
-                <label>Size <span id="val_z_r3">4</span></label>
-                <input type="range" id="z_r3" min="2" max="20" value="4" oninput="uiChange()">
-                <label>Deflection <span id="val_f_r3">1.5</span></label>
-                <input type="range" id="f_r3" min="0.5" max="5.0" step="0.1" value="1.5" oninput="uiChange()">
-                <label>Graduality <span id="val_sm_r3">2.0</span></label>
-                <input type="range" id="sm_r3" min="1.0" max="6.0" step="0.5" value="2.0" oninput="uiChange()">
+                <label>Count <span id="val_c_r3">60</span></label><input type="range" id="c_r3" min="1" max="60" value="60" oninput="uiChange()">
+                <label>Distance <span id="val_d_r3">280</span></label><input type="range" id="d_r3" min="50" max="290" value="280" oninput="uiChange()">
+                <label>Shape</label><select id="s_r3" onchange="generate()"><option value="baton">Baton</option><option value="round">Round</option><option value="square">Square</option></select>
+                <label>Size <span id="val_z_r3">4</span></label><input type="range" id="z_r3" min="2" max="20" value="4" oninput="uiChange()">
+                <label>Deflection <span id="val_f_r3">1.5</span></label><input type="range" id="f_r3" min="0.5" max="5.0" step="0.1" value="1.5" oninput="uiChange()">
+                <label>Graduality <span id="val_sm_r3">2.0</span></label><input type="range" id="sm_r3" min="1.0" max="6.0" step="0.5" value="2.0" oninput="uiChange()">
 
                 <div class="type-block">
                     <div class="type-header">Typography</div>
                     <label>Show Numbers <input type="checkbox" id="txt_on_r3" onchange="generate()"></label>
                     <select id="font_r3" style="display:none"><option>Arial</option></select>
-                    <label>Size <span id="val_ts_r3">6</span></label>
-                    <input type="range" id="ts_r3" min="4" max="20" value="6" oninput="uiChange()">
-                    <label>X-Nudge <span id="val_tx_r3">0</span></label>
-                    <input type="range" id="tx_r3" min="-10" max="10" step="1" value="0" oninput="uiChange()">
-                    <label>Y-Nudge <span id="val_ty_r3">0</span></label>
-                    <input type="range" id="ty_r3" min="-10" max="10" step="1" value="0" oninput="uiChange()">
+                    <label>Size <span id="val_ts_r3">6</span></label><input type="range" id="ts_r3" min="4" max="20" value="6" oninput="uiChange()">
+                    <label>X-Nudge <span id="val_tx_r3">0</span></label><input type="range" id="tx_r3" min="-10" max="10" step="1" value="0" oninput="uiChange()">
+                    <label>Y-Nudge <span id="val_ty_r3">0</span></label><input type="range" id="ty_r3" min="-10" max="10" step="1" value="0" oninput="uiChange()">
                 </div>
             </div>
         </div>
@@ -264,7 +224,6 @@
     </div>
 
 <script>
-    // Robust Error Handling
     window.onerror = function(msg, url, line) { alert("Script Error: " + msg); return false; };
 
     const canvas = document.getElementById('canvas');
@@ -278,7 +237,7 @@
     let obstacles = [];
     let paths = [];
 
-    // Font Loading Check
+    // Font Loading
     document.fonts.ready.then(() => {
         const dot = document.getElementById('status-dot');
         const txt = document.getElementById('status-text');
@@ -286,7 +245,7 @@
             dot.classList.add('ready');
             txt.innerText = "Fonts Ready";
         }
-        setTimeout(generate, 100);
+        setTimeout(generate, 500);
     });
 
     // UI Logic
@@ -299,18 +258,14 @@
     }
 
     function uiChange() {
-        // FIXED IDS HERE (val_density, val_length)
         ['swirl','repel','density','length'].forEach(id => {
             const el = document.getElementById(id);
-            const disp = document.getElementById('val_' + id);
-            if(el && disp) disp.innerText = el.value;
+            if(el) document.getElementById('val_'+id).innerText = el.value;
         });
-        
         ringIds.forEach(id => {
             ['c','d','z','f','sm','ts','tx','ty'].forEach(k => {
                 const el = document.getElementById(k+'_'+id);
-                const disp = document.getElementById('val_'+k+'_'+id);
-                if(el && disp) disp.innerText = el.value;
+                if(el) document.getElementById('val_'+k+'_'+id).innerText = el.value;
             });
         });
     }
@@ -344,7 +299,8 @@
         if(o.text) {
             ctx.save();
             ctx.fillStyle = "#000";
-            ctx.font = `400 ${o.textSize}px ${o.font}`; 
+            // FIXED SYNTAX: Wrap font name in quotes
+            ctx.font = `400 ${o.textSize}px '${o.font}'`; 
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillText(o.textVal, o.x + o.tx, o.y + o.ty); 
@@ -379,7 +335,6 @@
 
             for(let i=0; i<count; i++) {
                 const ang = (i/count)*Math.PI*2 - Math.PI/2;
-                
                 let label = (i + 1).toString();
                 if(count === 12) label = (i===0 ? "12" : i.toString());
                 
@@ -425,7 +380,6 @@
             let dx = x - o.x;
             let dy = y - o.y;
             let d = Math.sqrt(dx*dx + dy*dy);
-            
             let fieldRadius = Math.max(o.w, o.h) * (0.8 + o.smooth); 
             
             if(d < fieldRadius && d > 0) {
@@ -451,61 +405,62 @@
     }
 
     function generate() {
-        generateObstacles();
-        
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(0,0,width,height);
-        
-        ctx.fillStyle = "#f0f0f0"; ctx.strokeStyle="#ddd";
-        obstacles.forEach((o,i)=>{ if(i>0) drawShape(ctx, o, true); });
+        document.fonts.ready.then(() => {
+            generateObstacles();
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0,0,width,height);
+            
+            // Preview
+            ctx.fillStyle = "#f0f0f0"; ctx.strokeStyle="#ddd";
+            obstacles.forEach((o,i)=>{ if(i>0) drawShape(ctx, o, true); });
 
-        const dens = parseInt(document.getElementById('density').value);
-        const len = parseInt(document.getElementById('length').value);
-        
-        paths = [];
-        ctx.strokeStyle = "rgba(0,0,0,0.6)";
-        ctx.lineWidth = 0.5;
-        
-        for(let i=0; i<dens; i++) {
-            let r = Math.sqrt(Math.random()) * (width/2 - 10);
-            let th = Math.random() * Math.PI * 2;
-            let px = cx + Math.cos(th)*r;
-            let py = cy + Math.sin(th)*r;
+            const dens = parseInt(document.getElementById('density').value);
+            const len = parseInt(document.getElementById('length').value);
             
-            let bad = false;
-            for(let o of obstacles) {
-                if(i>0 && Math.sqrt((px-o.x)**2 + (py-o.y)**2) < o.r) bad=true;
-            }
-            if(bad) continue;
+            paths = [];
+            ctx.strokeStyle = "rgba(0,0,0,0.6)";
+            ctx.lineWidth = 0.5;
             
-            let path = [{x:px, y:py}];
-            ctx.beginPath();
-            ctx.moveTo(px, py);
-            
-            for(let s=0; s<len; s++) {
-                let v = getFieldVector(px, py);
-                px += v.x; py += v.y;
+            for(let i=0; i<dens; i++) {
+                let r = Math.sqrt(Math.random()) * (width/2 - 10);
+                let th = Math.random() * Math.PI * 2;
+                let px = cx + Math.cos(th)*r;
+                let py = cy + Math.sin(th)*r;
                 
-                let crash = false;
+                let bad = false;
                 for(let o of obstacles) {
-                    if(i>0 && Math.sqrt((px-o.x)**2 + (py-o.y)**2) < Math.min(o.w, o.h)*0.95) crash=true;
+                    if(i>0 && Math.sqrt((px-o.x)**2 + (py-o.y)**2) < o.r) bad=true;
                 }
-                if(crash) break;
-                if(px<0||px>width||py<0||py>height) break;
+                if(bad) continue;
                 
-                path.push({x:px, y:py});
-                ctx.lineTo(px, py);
+                let path = [{x:px, y:py}];
+                ctx.beginPath();
+                ctx.moveTo(px, py);
+                
+                for(let s=0; s<len; s++) {
+                    let v = getFieldVector(px, py);
+                    px += v.x; py += v.y;
+                    
+                    let crash = false;
+                    for(let o of obstacles) {
+                        if(i>0 && Math.sqrt((px-o.x)**2 + (py-o.y)**2) < Math.min(o.w, o.h)*0.95) crash=true;
+                    }
+                    if(crash) break;
+                    if(px<0||px>width||py<0||py>height) break;
+                    
+                    path.push({x:px, y:py});
+                    ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+                paths.push(path);
             }
-            ctx.stroke();
-            paths.push(path);
-        }
-        
-        ctx.strokeStyle = "#000"; ctx.lineWidth=2; 
-        obstacles.forEach((o,i)=>{ 
-            if(i>0) drawShape(ctx, o, true); 
+            
+            ctx.strokeStyle = "#000"; ctx.lineWidth=2; 
+            obstacles.forEach((o,i)=>{ 
+                if(i>0) drawShape(ctx, o, true); 
+            });
+            ctx.beginPath(); ctx.arc(cx, cy, 298, 0, Math.PI*2); ctx.stroke();
         });
-        
-        ctx.beginPath(); ctx.arc(cx, cy, 298, 0, Math.PI*2); ctx.stroke();
     }
 
     function getSvgShape(o) {
@@ -520,15 +475,17 @@
         }
         
         if(o.text) {
-            let family = o.font.split(',')[0].replace(/"/g, '').replace(/'/g, ''); 
-            s += `<text x="${o.x + o.tx}" y="${o.y + o.ty}" font-family="${family}" font-weight="400" font-size="${o.textSize}" text-anchor="middle" dominant-baseline="central" fill="black">${o.textVal}</text>`;
+            // Fix SVG Font syntax too
+            s += `<text x="${o.x + o.tx}" y="${o.y + o.ty}" font-family="'${o.font}'" font-weight="400" font-size="${o.textSize}" text-anchor="middle" dominant-baseline="central" fill="black">${o.textVal}</text>`;
         }
         return s;
     }
 
     function downloadSVG() {
         let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
-        svg += `<style>@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Tenor+Sans&family=Great+Vibes&display=swap');</style>`;
+        svg += `<style>
+            @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400&family=Cinzel:wght@400&family=Great+Vibes&family=Italiana&family=Julius+Sans+One&family=Montserrat:wght@300&family=Philosopher:ital,wght@0,400;1,400&family=Pinyon+Script&display=swap');
+        </style>`;
         svg += `<rect width="100%" height="100%" fill="white"/>`;
         svg += `<g fill="none" stroke="black" stroke-width="0.5" opacity="0.8">`;
         paths.forEach(p => {
@@ -546,7 +503,7 @@
         const blob = new Blob([svg], {type:"image/svg+xml"});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href=url; a.download="chronos_artsy.svg";
+        a.href=url; a.download="chronos_v20.svg";
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
     }
 
