@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chronos Flow v38: Layout Fix</title>
+    <title>Chronos Flow v38: Kaleidoscope</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -109,12 +109,12 @@
             gap: 15px;
         }
         
-        /* --- LAYOUT FIX: RINGS WRAPPER --- */
+        /* 3-Column Layout for Rings */
         #rings_wrapper {
-            grid-column: span 3; /* Occupy full row of parent grid */
-            display: grid;       /* Be a grid itself */
-            grid-template-columns: repeat(3, 1fr); /* 3 columns for the rings */
-            gap: 15px;           /* Match parent gap */
+            grid-column: span 3;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
             transition: opacity 0.3s;
         }
         .rings-disabled { opacity: 0.2; pointer-events: none; }
@@ -177,7 +177,7 @@
     <div id="font-status"><div class="status-dot" id="status-dot"></div> <span id="status-text">Loading Fonts...</span></div>
 
     <h1>Chronos Flow v38</h1>
-    <div class="sub">Layout Restored</div>
+    <div class="sub">Kaleidoscope Mode</div>
 
     <div class="container">
         <canvas id="canvas" width="600" height="600"></canvas>
@@ -201,7 +201,8 @@
                         <option value="center">Single Singularity</option>
                         <option value="dipole">Magnetic Dipole</option>
                         <option value="damascus">Damascus Steel</option>
-                        <option value="honeycomb" selected>Honeycomb Lattice</option>
+                        <option value="honeycomb">Honeycomb Lattice</option>
+                        <option value="kaleidoscope" selected>Kaleidoscope (Radial)</option>
                     </select>
                 </div>
                 <div><label>Density <span id="val_density">2500</span></label><input type="range" id="density" min="500" max="5000" step="500" value="2500" oninput="liveUpdate()"></div>
@@ -212,7 +213,7 @@
             <div id="grp_center" class="phys-group">
                 <div class="center-controls">
                     <div><label>Influence Radius <span id="val_crepel">100</span></label><input type="range" id="crepel" min="0" max="350" value="100" oninput="liveUpdate()"></div>
-                    <div><label style="color:#00e5ff">Force (+Repel / -Gravity) <span id="val_cforce">-3.0</span></label><input type="range" id="cforce" min="-5.0" max="5.0" step="0.1" value="-3.0" oninput="liveUpdate()"></div>
+                    <div><label style="color:#00e5ff">Force <span id="val_cforce">-3.0</span></label><input type="range" id="cforce" min="-5.0" max="5.0" step="0.1" value="-3.0" oninput="liveUpdate()"></div>
                 </div>
             </div>
 
@@ -241,13 +242,11 @@
                 </div>
             </div>
 
-            <div id="grp_honeycomb" class="phys-group active">
+            <div id="grp_honeycomb" class="phys-group">
                 <div class="grid-controls">
                     <div><label style="color:#ffd700">Grid Base Spacing <span id="val_hc_base">30</span></label><input type="range" id="hc_base" min="20" max="80" value="30" oninput="liveUpdate()"></div>
-                    
                     <div><label style="color:#ffd700">Inner Cell Size <span id="val_hc_inner">15</span></label><input type="range" id="hc_inner" min="2" max="60" value="15" oninput="liveUpdate()"></div>
                     <div><label style="color:#ffd700">Outer Cell Size <span id="val_hc_outer">30</span></label><input type="range" id="hc_outer" min="2" max="60" value="30" oninput="liveUpdate()"></div>
-                    
                     <div><label style="color:#ffd700">Grid Shape</label>
                         <select id="hc_shape" onchange="liveUpdate()">
                             <option value="hexagon" selected>Hexagon</option>
@@ -257,6 +256,14 @@
                         </select>
                     </div>
                     <div><label style="color:#ffd700">Obstacle Force <span id="val_hc_force">3.0</span></label><input type="range" id="hc_force" min="0.5" max="5.0" step="0.1" value="3.0" oninput="liveUpdate()"></div>
+                </div>
+            </div>
+
+            <div id="grp_kaleidoscope" class="phys-group active">
+                <div class="center-controls">
+                    <div><label style="color:#ff00ff">Segments <span id="val_kal_segs">6</span></label><input type="range" id="kal_segs" min="3" max="24" step="1" value="6" oninput="liveUpdate()"></div>
+                    <div><label style="color:#ff00ff">Pattern Zoom <span id="val_kal_zoom">0.015</span></label><input type="range" id="kal_zoom" min="0.005" max="0.050" step="0.001" value="0.015" oninput="liveUpdate()"></div>
+                    <div><label style="color:#ff00ff">Complexity <span id="val_kal_comp">2.0</span></label><input type="range" id="kal_comp" min="0.0" max="10.0" step="0.1" value="2.0" oninput="liveUpdate()"></div>
                 </div>
             </div>
         </div>
@@ -429,7 +436,9 @@
     const ALL_IDS = [
         'phys_mode','density','length','swirl',
         'crepel','cforce','p1_ang','p1_dist','p1_force','p2_ang','p2_dist','p2_force',
-        'dam_scale','dam_turb','dam_ang', 'hc_base', 'hc_inner', 'hc_outer', 'hc_shape', 'hc_force'
+        'dam_scale','dam_turb','dam_ang', 
+        'hc_base', 'hc_inner', 'hc_outer', 'hc_shape', 'hc_force',
+        'kal_segs','kal_zoom','kal_comp'
     ];
     ringIds.forEach(rid => {
         ALL_IDS.push('on_'+rid, 'pat_'+rid, 'c_'+rid, 'rot_'+rid, 'd_'+rid, 's_'+rid, 'z_'+rid, 'f_'+rid, 'sm_'+rid);
@@ -532,7 +541,7 @@
         const ringsDiv = document.getElementById('rings_wrapper');
         
         // Hide all groups
-        ['grp_center','grp_dipole','grp_damascus','grp_honeycomb'].forEach(g => {
+        ['grp_center','grp_dipole','grp_damascus','grp_honeycomb','grp_kaleidoscope'].forEach(g => {
             document.getElementById(g).classList.remove('active');
         });
         
@@ -541,6 +550,7 @@
         else if(mode === 'dipole') document.getElementById('grp_dipole').classList.add('active');
         else if(mode === 'damascus') document.getElementById('grp_damascus').classList.add('active');
         else if(mode === 'honeycomb') document.getElementById('grp_honeycomb').classList.add('active');
+        else if(mode === 'kaleidoscope') document.getElementById('grp_kaleidoscope').classList.add('active');
 
         // Disable rings if honeycomb
         if (mode === 'honeycomb') ringsDiv.classList.add('rings-disabled');
@@ -557,8 +567,7 @@
     }
 
     function uiChange() {
-        // Simple inputs
-        ['swirl','crepel','cforce','density','length','hc_base','hc_inner','hc_outer','hc_force'].forEach(id => {
+        ['swirl','crepel','cforce','density','length','hc_base','hc_inner','hc_outer','hc_force','kal_segs','kal_zoom','kal_comp'].forEach(id => {
             const el = document.getElementById(id);
             if(el) document.getElementById('val_'+id).innerText = el.value;
         });
@@ -636,37 +645,23 @@
             const hShape = document.getElementById('hc_shape').value;
             const hForce = parseFloat(document.getElementById('hc_force').value);
             
-            // Hex grid math
             const spacingX = hBase * Math.sqrt(3);
             const spacingY = hBase * 1.5;
             
-            // Generate grid covering 600x600
             for(let row = -10; row < 15; row++) {
                 for(let col = -10; col < 15; col++) {
                     let xx = col * spacingX;
                     let yy = row * spacingY;
                     if (row % 2 !== 0) xx += spacingX / 2;
-                    
                     xx += cx; yy += cy;
-                    
                     let distToCenter = Math.sqrt((xx-cx)**2 + (yy-cy)**2);
-                    
-                    // Clip to circle
                     if (distToCenter < 280) {
-                        // Calculate Gradient Size
-                        let normDist = distToCenter / 280; // 0 to 1
-                        if (normDist > 1) normDist = 1;
-                        // Linear interpolation between Inner and Outer
+                        let normDist = distToCenter / 280; if (normDist > 1) normDist = 1;
                         let currentSize = hInner + (hOuter - hInner) * normDist;
-                        
                         obstacles.push({
-                            x: xx, y: yy,
-                            angle: 0,
-                            type: hShape,
+                            x: xx, y: yy, angle: 0, type: hShape,
                             w: currentSize/2, h: currentSize/2,
-                            force: hForce,
-                            smooth: 3.0,
-                            r: currentSize/2
+                            force: hForce, smooth: 3.0, r: currentSize/2
                         });
                     }
                 }
@@ -678,7 +673,6 @@
         ringIds.forEach(rid => {
             const checkbox = document.getElementById('on_'+rid);
             if(!checkbox || !checkbox.checked) return;
-            
             const pat = document.getElementById('pat_'+rid).value;
             const dist = parseInt(document.getElementById('d_'+rid).value);
             const size = parseInt(document.getElementById('z_'+rid).value);
@@ -686,7 +680,6 @@
             const force = parseFloat(document.getElementById('f_'+rid).value);
             const smooth = parseFloat(document.getElementById('sm_'+rid).value);
             const rotOffset = parseInt(document.getElementById('rot_'+rid).value) * (Math.PI / 180);
-            
             const hasText = document.getElementById('txt_on_'+rid).checked;
             const textSize = parseInt(document.getElementById('ts_'+rid).value);
             const font = document.getElementById('font_'+rid).value;
@@ -714,19 +707,9 @@
             indices.forEach(item => {
                 const ang = (item.i / item.total) * Math.PI * 2 - (Math.PI/2) + rotOffset;
                 obstacles.push({
-                    x: cx + Math.cos(ang)*dist,
-                    y: cy + Math.sin(ang)*dist,
-                    angle: ang + Math.PI/2,
-                    type: shape,
-                    w: w, h: h,
-                    force: force,
-                    smooth: smooth,
-                    r: Math.max(w, h),
-                    text: hasText,
-                    textVal: item.label,
-                    textSize: textSize,
-                    font: font,
-                    tx: tx, ty: ty
+                    x: cx + Math.cos(ang)*dist, y: cy + Math.sin(ang)*dist, angle: ang + Math.PI/2,
+                    type: shape, w: w, h: h, force: force, smooth: smooth, r: Math.max(w, h),
+                    text: hasText, textVal: item.label, textSize: textSize, font: font, tx: tx, ty: ty
                 });
             });
         });
@@ -749,18 +732,15 @@
             const c_rad = parseInt(document.getElementById('crepel').value);
             const c_force = parseFloat(document.getElementById('cforce').value);
             if(dist < c_rad && dist > 1) {
-                let nd = dist / c_rad;
-                let str = (1 - nd) * (1 - nd); 
+                let nd = dist / c_rad; let str = (1 - nd) * (1 - nd); 
                 vx += (nx / dist) * str * c_force * 4.0;
                 vy += (ny / dist) * str * c_force * 4.0;
             }
         } else if (mode === 'dipole') {
-            // Dipole Logic
             const p1a = parseInt(document.getElementById('p1_ang').value) * (Math.PI/180) - Math.PI/2;
             const p1d = parseInt(document.getElementById('p1_dist').value);
             const p1f = parseFloat(document.getElementById('p1_force').value);
             const p1x = cx + Math.cos(p1a)*p1d, p1y = cy + Math.sin(p1a)*p1d;
-            
             const p2a = parseInt(document.getElementById('p2_ang').value) * (Math.PI/180) - Math.PI/2;
             const p2d = parseInt(document.getElementById('p2_dist').value);
             const p2f = parseFloat(document.getElementById('p2_force').value);
@@ -768,7 +748,6 @@
 
             let dx1 = x-p1x, dy1 = y-p1y, d1 = Math.sqrt(dx1*dx1 + dy1*dy1);
             if(d1>1) { let s1 = 1/(1+d1/50); vx += (dx1/d1)*s1*p1f*3.0; vy += (dy1/d1)*s1*p1f*3.0; }
-            
             let dx2 = x-p2x, dy2 = y-p2y, d2 = Math.sqrt(dx2*dx2 + dy2*dy2);
             if(d2>1) { let s2 = 1/(1+d2/50); vx += (dx2/d2)*s2*p2f*3.0; vy += (dy2/d2)*s2*p2f*3.0; }
 
@@ -781,6 +760,48 @@
             let rot = n * d_turb;
             vx = baseVx * Math.cos(rot) - baseVy * Math.sin(rot);
             vy = baseVx * Math.sin(rot) + baseVy * Math.cos(rot);
+        } else if (mode === 'kaleidoscope') {
+            const kSegs = parseInt(document.getElementById('kal_segs').value);
+            const kZoom = parseFloat(document.getElementById('kal_zoom').value);
+            const kComp = parseFloat(document.getElementById('kal_comp').value);
+            
+            // Polar math for symmetry
+            let dx = x - cx; let dy = y - cy;
+            let r = Math.sqrt(dx*dx + dy*dy);
+            let theta = Math.atan2(dy, dx);
+            if (theta < 0) theta += Math.PI * 2;
+            
+            // Slice logic
+            const slice = (Math.PI * 2) / kSegs;
+            let segIdx = Math.floor(theta / slice);
+            let localTheta = theta % slice;
+            
+            // Mirroring ensures perfect seams
+            if (localTheta > slice/2) localTheta = slice - localTheta;
+            
+            // Map back to Cartesian for noise sampling
+            let sx = cx + Math.cos(localTheta) * r;
+            let sy = cy + Math.sin(localTheta) * r;
+            
+            let n = Perlin.noise(sx * kZoom, sy * kZoom, 0);
+            let rot = n * kComp;
+            
+            // Base radial flow outward
+            let baseVx = Math.cos(localTheta);
+            let baseVy = Math.sin(localTheta);
+            
+            // Perturb
+            let lvx = baseVx * Math.cos(rot) - baseVy * Math.sin(rot);
+            let lvy = baseVx * Math.sin(rot) + baseVy * Math.cos(rot);
+            
+            // Rotate back to segment
+            // We need to rotate (lvx, lvy) by (segIdx * slice)
+            // Note: because we mirrored, we might need to flip vector x if it was mirrored?
+            // Actually simpler: just rotate the resulting vector to match the segment angle
+            
+            let finalRot = segIdx * slice;
+            vx = lvx * Math.cos(finalRot) - lvy * Math.sin(finalRot);
+            vy = lvx * Math.sin(finalRot) + lvy * Math.cos(finalRot);
         }
 
         // OBSTACLES
@@ -823,13 +844,24 @@
             
             let is_gravity = false;
             let c_rad = 0;
-            // Pole params handled in loop if needed, essentially redundant for spawn check
             if(mode === 'center') {
                 c_rad = parseInt(document.getElementById('crepel').value);
                 const c_force = parseFloat(document.getElementById('cforce').value);
                 if(c_force < 0) is_gravity = true;
             }
             
+            let p1x, p1y, p1f, p2x, p2y, p2f;
+            if(mode === 'dipole') {
+                p1f = parseFloat(document.getElementById('p1_force').value);
+                p2f = parseFloat(document.getElementById('p2_force').value);
+                const p1a = parseInt(document.getElementById('p1_ang').value) * (Math.PI/180) - Math.PI/2;
+                const p1d = parseInt(document.getElementById('p1_dist').value);
+                p1x = cx + Math.cos(p1a)*p1d; p1y = cy + Math.sin(p1a)*p1d;
+                const p2a = parseInt(document.getElementById('p2_ang').value) * (Math.PI/180) - Math.PI/2;
+                const p2d = parseInt(document.getElementById('p2_dist').value);
+                p2x = cx + Math.cos(p2a)*p2d; p2y = cy + Math.sin(p2a)*p2d;
+            }
+
             paths = [];
             ctx.strokeStyle = "rgba(0,0,0,0.6)";
             ctx.lineWidth = 0.5;
@@ -838,6 +870,7 @@
                 let r = Math.sqrt(Math.random()) * (width/2 - 10);
                 if(is_gravity && Math.random() > 0.3) r = (width/2 - 20) - (Math.random() * 100);
                 if(mode === 'damascus') r = Math.random() * (width/2 - 10);
+                if(mode === 'kaleidoscope') r = Math.random() * (width/2 - 10);
 
                 let th = Math.random() * Math.PI * 2;
                 let px = cx + Math.cos(th)*r;
@@ -863,20 +896,8 @@
                     for(let o of obstacles) {
                         if(Math.sqrt((px-o.x)**2 + (py-o.y)**2) < Math.min(o.w, o.h)*0.95) crash=true;
                     }
-                    if(mode === 'center') {
-                        if (is_gravity && Math.sqrt((px-cx)**2 + (py-cy)**2) < 8) crash = true;
-                    }
-                    // Dipole horizons
+                    if(mode === 'center' && is_gravity && Math.sqrt((px-cx)**2 + (py-cy)**2) < 8) crash = true;
                     if(mode === 'dipole') {
-                        // Recalc poles just for check
-                        const p1a = parseInt(document.getElementById('p1_ang').value) * (Math.PI/180) - Math.PI/2;
-                        const p1d = parseInt(document.getElementById('p1_dist').value);
-                        const p1f = parseFloat(document.getElementById('p1_force').value);
-                        const p1x = cx + Math.cos(p1a)*p1d, p1y = cy + Math.sin(p1a)*p1d;
-                        const p2a = parseInt(document.getElementById('p2_ang').value) * (Math.PI/180) - Math.PI/2;
-                        const p2d = parseInt(document.getElementById('p2_dist').value);
-                        const p2f = parseFloat(document.getElementById('p2_force').value);
-                        const p2x = cx + Math.cos(p2a)*p2d, p2y = cy + Math.sin(p2a)*p2d;
                         if (p1f < 0 && Math.sqrt((px-p1x)**2 + (py-p1y)**2) < 10) crash = true;
                         if (p2f < 0 && Math.sqrt((px-p2x)**2 + (py-p2y)**2) < 10) crash = true;
                     }
