@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chronos Flow v38: Kaleidoscope</title>
+    <title>Chronos Flow v40: Topo Reseed</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,6 +69,7 @@
         .btn-save { background: #00d2ff; color: #000; }
         .btn-load { background: #444; color: #fff; }
         .btn-del { background: #ff4444; color: #fff; }
+        .btn-reseed { background: #ff9955; color: #000; width: 100%; margin-top: 10px; padding: 10px;}
 
         .global-controls {
             grid-column: span 3;
@@ -109,7 +110,6 @@
             gap: 15px;
         }
         
-        /* 3-Column Layout for Rings */
         #rings_wrapper {
             grid-column: span 3;
             display: grid;
@@ -176,8 +176,8 @@
 
     <div id="font-status"><div class="status-dot" id="status-dot"></div> <span id="status-text">Loading Fonts...</span></div>
 
-    <h1>Chronos Flow v38</h1>
-    <div class="sub">Kaleidoscope Mode</div>
+    <h1>Chronos Flow v40</h1>
+    <div class="sub">Topo Reseed</div>
 
     <div class="container">
         <canvas id="canvas" width="600" height="600"></canvas>
@@ -202,7 +202,8 @@
                         <option value="dipole">Magnetic Dipole</option>
                         <option value="damascus">Damascus Steel</option>
                         <option value="honeycomb">Honeycomb Lattice</option>
-                        <option value="kaleidoscope" selected>Kaleidoscope (Radial)</option>
+                        <option value="kaleidoscope">Kaleidoscope</option>
+                        <option value="topo" selected>Topographic (Isobars)</option>
                     </select>
                 </div>
                 <div><label>Density <span id="val_density">2500</span></label><input type="range" id="density" min="500" max="5000" step="500" value="2500" oninput="liveUpdate()"></div>
@@ -213,7 +214,7 @@
             <div id="grp_center" class="phys-group">
                 <div class="center-controls">
                     <div><label>Influence Radius <span id="val_crepel">100</span></label><input type="range" id="crepel" min="0" max="350" value="100" oninput="liveUpdate()"></div>
-                    <div><label style="color:#00e5ff">Force <span id="val_cforce">-3.0</span></label><input type="range" id="cforce" min="-5.0" max="5.0" step="0.1" value="-3.0" oninput="liveUpdate()"></div>
+                    <div><label style="color:#00e5ff">Force (+Repel / -Gravity) <span id="val_cforce">-3.0</span></label><input type="range" id="cforce" min="-5.0" max="5.0" step="0.1" value="-3.0" oninput="liveUpdate()"></div>
                 </div>
             </div>
 
@@ -259,12 +260,20 @@
                 </div>
             </div>
 
-            <div id="grp_kaleidoscope" class="phys-group active">
+            <div id="grp_kaleidoscope" class="phys-group">
                 <div class="center-controls">
                     <div><label style="color:#ff00ff">Segments <span id="val_kal_segs">6</span></label><input type="range" id="kal_segs" min="3" max="24" step="1" value="6" oninput="liveUpdate()"></div>
                     <div><label style="color:#ff00ff">Pattern Zoom <span id="val_kal_zoom">0.015</span></label><input type="range" id="kal_zoom" min="0.005" max="0.050" step="0.001" value="0.015" oninput="liveUpdate()"></div>
                     <div><label style="color:#ff00ff">Complexity <span id="val_kal_comp">2.0</span></label><input type="range" id="kal_comp" min="0.0" max="10.0" step="0.1" value="2.0" oninput="liveUpdate()"></div>
                 </div>
+            </div>
+
+            <div id="grp_topo" class="phys-group active">
+                <div class="center-controls">
+                    <div><label style="color:#ff9955">Terrain Scale <span id="val_topo_scale">0.010</span></label><input type="range" id="topo_scale" min="0.002" max="0.030" step="0.001" value="0.010" oninput="liveUpdate()"></div>
+                    <div><label style="color:#ff9955">Ruggedness (Warp) <span id="val_topo_warp">1.0</span></label><input type="range" id="topo_warp" min="0.0" max="5.0" step="0.1" value="1.0" oninput="liveUpdate()"></div>
+                </div>
+                <button class="preset-btn btn-reseed" onclick="reseedTopo()">Reseed Terrain</button>
             </div>
         </div>
 
@@ -438,7 +447,8 @@
         'crepel','cforce','p1_ang','p1_dist','p1_force','p2_ang','p2_dist','p2_force',
         'dam_scale','dam_turb','dam_ang', 
         'hc_base', 'hc_inner', 'hc_outer', 'hc_shape', 'hc_force',
-        'kal_segs','kal_zoom','kal_comp'
+        'kal_segs','kal_zoom','kal_comp',
+        'topo_scale','topo_warp'
     ];
     ringIds.forEach(rid => {
         ALL_IDS.push('on_'+rid, 'pat_'+rid, 'c_'+rid, 'rot_'+rid, 'd_'+rid, 's_'+rid, 'z_'+rid, 'f_'+rid, 'sm_'+rid);
@@ -505,6 +515,12 @@
         document.getElementById('preset_list').value = "";
     }
 
+    // Topo Reseed
+    function reseedTopo() {
+        Perlin.init(); // New permutation table
+        requestGenerate();
+    }
+
     window.addEventListener('beforeunload', () => {
         localStorage.setItem('chronos_autosave', JSON.stringify(getSettings()));
     });
@@ -541,7 +557,7 @@
         const ringsDiv = document.getElementById('rings_wrapper');
         
         // Hide all groups
-        ['grp_center','grp_dipole','grp_damascus','grp_honeycomb','grp_kaleidoscope'].forEach(g => {
+        ['grp_center','grp_dipole','grp_damascus','grp_honeycomb','grp_kaleidoscope','grp_topo'].forEach(g => {
             document.getElementById(g).classList.remove('active');
         });
         
@@ -551,6 +567,7 @@
         else if(mode === 'damascus') document.getElementById('grp_damascus').classList.add('active');
         else if(mode === 'honeycomb') document.getElementById('grp_honeycomb').classList.add('active');
         else if(mode === 'kaleidoscope') document.getElementById('grp_kaleidoscope').classList.add('active');
+        else if(mode === 'topo') document.getElementById('grp_topo').classList.add('active');
 
         // Disable rings if honeycomb
         if (mode === 'honeycomb') ringsDiv.classList.add('rings-disabled');
@@ -567,7 +584,7 @@
     }
 
     function uiChange() {
-        ['swirl','crepel','cforce','density','length','hc_base','hc_inner','hc_outer','hc_force','kal_segs','kal_zoom','kal_comp'].forEach(id => {
+        ['swirl','crepel','cforce','density','length','hc_base','hc_inner','hc_outer','hc_force','kal_segs','kal_zoom','kal_comp','topo_scale','topo_warp'].forEach(id => {
             const el = document.getElementById(id);
             if(el) document.getElementById('val_'+id).innerText = el.value;
         });
@@ -765,43 +782,48 @@
             const kZoom = parseFloat(document.getElementById('kal_zoom').value);
             const kComp = parseFloat(document.getElementById('kal_comp').value);
             
-            // Polar math for symmetry
             let dx = x - cx; let dy = y - cy;
             let r = Math.sqrt(dx*dx + dy*dy);
             let theta = Math.atan2(dy, dx);
             if (theta < 0) theta += Math.PI * 2;
             
-            // Slice logic
             const slice = (Math.PI * 2) / kSegs;
             let segIdx = Math.floor(theta / slice);
             let localTheta = theta % slice;
-            
-            // Mirroring ensures perfect seams
             if (localTheta > slice/2) localTheta = slice - localTheta;
             
-            // Map back to Cartesian for noise sampling
             let sx = cx + Math.cos(localTheta) * r;
             let sy = cy + Math.sin(localTheta) * r;
-            
             let n = Perlin.noise(sx * kZoom, sy * kZoom, 0);
             let rot = n * kComp;
             
-            // Base radial flow outward
-            let baseVx = Math.cos(localTheta);
-            let baseVy = Math.sin(localTheta);
-            
-            // Perturb
+            let baseVx = Math.cos(localTheta), baseVy = Math.sin(localTheta);
             let lvx = baseVx * Math.cos(rot) - baseVy * Math.sin(rot);
             let lvy = baseVx * Math.sin(rot) + baseVy * Math.cos(rot);
-            
-            // Rotate back to segment
-            // We need to rotate (lvx, lvy) by (segIdx * slice)
-            // Note: because we mirrored, we might need to flip vector x if it was mirrored?
-            // Actually simpler: just rotate the resulting vector to match the segment angle
             
             let finalRot = segIdx * slice;
             vx = lvx * Math.cos(finalRot) - lvy * Math.sin(finalRot);
             vy = lvx * Math.sin(finalRot) + lvy * Math.cos(finalRot);
+        } else if (mode === 'topo') {
+            const tScale = parseFloat(document.getElementById('topo_scale').value);
+            const tWarp = parseFloat(document.getElementById('topo_warp').value);
+            
+            let nx = x * tScale; let ny = y * tScale;
+            let qx = Perlin.noise(nx + 0.0, ny + 0.0, 0);
+            let qy = Perlin.noise(nx + 5.2, ny + 1.3, 0);
+            
+            let finalX = nx + tWarp * qx;
+            let finalY = ny + tWarp * qy;
+            
+            const eps = 0.01;
+            let n1 = Perlin.noise(finalX, finalY, 0);
+            let n2 = Perlin.noise(finalX + eps, finalY, 0);
+            let n3 = Perlin.noise(finalX, finalY + eps, 0);
+            
+            let dx = (n2 - n1) / eps;
+            let dy = (n3 - n1) / eps;
+            
+            vx = -dy; vy = dx;
         }
 
         // OBSTACLES
@@ -871,6 +893,7 @@
                 if(is_gravity && Math.random() > 0.3) r = (width/2 - 20) - (Math.random() * 100);
                 if(mode === 'damascus') r = Math.random() * (width/2 - 10);
                 if(mode === 'kaleidoscope') r = Math.random() * (width/2 - 10);
+                if(mode === 'topo') r = Math.random() * (width/2 - 10);
 
                 let th = Math.random() * Math.PI * 2;
                 let px = cx + Math.cos(th)*r;
@@ -914,6 +937,12 @@
             
             ctx.strokeStyle = "#000"; ctx.lineWidth=2; 
             obstacles.forEach((o,i)=>{ drawShape(ctx, o, true); });
+            
+            if(mode === 'dipole') {
+                ctx.beginPath(); ctx.arc(p1x, p1y, 5, 0, Math.PI*2); ctx.fillStyle="orange"; ctx.fill();
+                ctx.beginPath(); ctx.arc(p2x, p2y, 5, 0, Math.PI*2); ctx.fillStyle="#0099ff"; ctx.fill();
+            }
+            
             ctx.beginPath(); ctx.arc(cx, cy, 298, 0, Math.PI*2); ctx.stroke();
         });
     }
@@ -963,7 +992,7 @@
         const blob = new Blob([svg], {type:"image/svg+xml"});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href=url; a.download="chronos_v38.svg";
+        a.href=url; a.download="chronos_v40.svg";
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
     }
 
