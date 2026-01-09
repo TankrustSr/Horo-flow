@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chronos Flow v48: Swirl Fix</title>
+    <title>Chronos Flow v52: Pipeline Fix</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -181,7 +181,7 @@
 <body>
 
     <aside id="left-sidebar">
-        <h1 class="sidebar-title">Chronos Flow v48</h1>
+        <h1 class="sidebar-title">Chronos Flow v52</h1>
 
         <div class="control-block">
             <h3>Global Settings</h3>
@@ -190,7 +190,9 @@
                 <option value="center">Single Singularity</option>
                 <option value="dipole">Magnetic Dipole</option>
                 <option value="damascus">Damascus Steel</option>
-                <option value="honeycomb" selected>Honeycomb Lattice</option>
+                <option value="wave">Ocean Swell</option>
+                <option value="pipeline" selected>Pipeline (Side View)</option>
+                <option value="honeycomb">Honeycomb Lattice</option>
                 <option value="kaleidoscope">Kaleidoscope</option>
                 <option value="topo">Topographic (Isobars)</option>
             </select>
@@ -258,7 +260,37 @@
                 <button class="btn-reseed" onclick="reseedNoise()">Reseed Pattern</button>
             </div>
 
-            <div id="grp_honeycomb" class="phys-group active">
+            <div id="grp_wave" class="phys-group">
+                <label style="color:#00ccff">Swell Angle <input type="number" id="val_wav_ang" value="135" oninput="updateFromNum('wav_ang')"></label>
+                <input type="range" id="wav_ang" min="0" max="360" value="135" oninput="liveUpdate()">
+                
+                <label style="color:#00ccff">Wavelength <input type="number" id="val_wav_len" value="50" oninput="updateFromNum('wav_len')"></label>
+                <input type="range" id="wav_len" min="10" max="150" value="50" oninput="liveUpdate()">
+                
+                <label style="color:#00ccff">Wave Height <input type="number" id="val_wav_amp" value="1.0" step="0.1" oninput="updateFromNum('wav_amp')"></label>
+                <input type="range" id="wav_amp" min="0.0" max="5.0" step="0.1" value="1.0" oninput="liveUpdate()">
+                
+                <label style="color:#00ccff">Choppiness <input type="number" id="val_wav_chop" value="0.5" step="0.1" oninput="updateFromNum('wav_chop')"></label>
+                <input type="range" id="wav_chop" min="0.0" max="3.0" step="0.1" value="0.5" oninput="liveUpdate()">
+                
+                <button class="btn-reseed" onclick="reseedNoise()">Reseed Waves</button>
+            </div>
+            
+             <div id="grp_pipeline" class="phys-group active">
+                <label style="color:#00ccff">Barrel Radius <input type="number" id="val_pipe_rad" value="100" oninput="updateFromNum('pipe_rad')"></label>
+                <input type="range" id="pipe_rad" min="40" max="250" value="100" oninput="liveUpdate()">
+
+                <label style="color:#00ccff">Eye Position X <input type="number" id="val_pipe_x" value="0" oninput="updateFromNum('pipe_x')"></label>
+                <input type="range" id="pipe_x" min="-200" max="200" value="0" oninput="liveUpdate()">
+
+                <label style="color:#00ccff">Curl Intensity <input type="number" id="val_pipe_curl" value="1.0" step="0.1" oninput="updateFromNum('pipe_curl')"></label>
+                <input type="range" id="pipe_curl" min="0.1" max="4.0" step="0.1" value="1.0" oninput="liveUpdate()">
+                
+                <label style="color:#00ccff">Lip Heaviness <input type="number" id="val_pipe_lip" value="1.0" step="0.1" oninput="updateFromNum('pipe_lip')"></label>
+                <input type="range" id="pipe_lip" min="0.0" max="3.0" step="0.1" value="1.0" oninput="liveUpdate()">
+            </div>
+
+            <div id="grp_honeycomb" class="phys-group">
                 <label style="color:#ffd700">Base Spacing <input type="number" id="val_hc_base" value="30" oninput="updateFromNum('hc_base')"></label>
                 <input type="range" id="hc_base" min="20" max="80" value="30" oninput="liveUpdate()">
                 
@@ -299,7 +331,7 @@
                 <label style="color:#ff9955">Ruggedness <input type="number" id="val_topo_warp" value="1.0" step="0.1" oninput="updateFromNum('topo_warp')"></label>
                 <input type="range" id="topo_warp" min="0.0" max="5.0" step="0.1" value="1.0" oninput="liveUpdate()">
                 
-                <button class="btn-reseed" onclick="reseedNoise()">Reseed Terrain</button>
+                <button class="btn-reseed" onclick="reseedTopo()">Reseed Terrain</button>
             </div>
         </div>
     </aside>
@@ -476,6 +508,8 @@
         'dam_scale','dam_turb','dam_ang', 
         'hc_base', 'hc_inner', 'hc_outer', 'hc_shape', 'hc_force',
         'kal_segs','kal_zoom','kal_comp',
+        'wav_ang', 'wav_len', 'wav_amp', 'wav_chop',
+        'pipe_rad', 'pipe_x', 'pipe_curl', 'pipe_lip',
         'topo_scale','topo_warp',
         'pat_radius'
     ];
@@ -550,6 +584,8 @@
         Perlin.init(); 
         requestGenerate();
     }
+    
+    function reseedTopo() { reseedNoise(); }
 
     window.addEventListener('beforeunload', () => {
         localStorage.setItem('chronos_autosave', JSON.stringify(getSettings()));
@@ -595,7 +631,7 @@
         const mode = document.getElementById('phys_mode').value;
         const ringsDiv = document.getElementById('rings_wrapper');
         
-        ['grp_center','grp_dipole','grp_damascus','grp_honeycomb','grp_kaleidoscope','grp_topo'].forEach(g => {
+        ['grp_center','grp_dipole','grp_damascus','grp_honeycomb','grp_kaleidoscope','grp_topo','grp_wave','grp_pipeline'].forEach(g => {
             document.getElementById(g).classList.remove('active');
         });
         
@@ -605,6 +641,8 @@
         else if(mode === 'honeycomb') document.getElementById('grp_honeycomb').classList.add('active');
         else if(mode === 'kaleidoscope') document.getElementById('grp_kaleidoscope').classList.add('active');
         else if(mode === 'topo') document.getElementById('grp_topo').classList.add('active');
+        else if(mode === 'wave') document.getElementById('grp_wave').classList.add('active');
+        else if(mode === 'pipeline') document.getElementById('grp_pipeline').classList.add('active');
 
         if (mode === 'honeycomb') ringsDiv.classList.add('rings-disabled');
         else ringsDiv.classList.remove('rings-disabled');
@@ -620,7 +658,10 @@
     }
 
     function uiChange() {
-        ['swirl','crepel','cforce','density','length','hc_base','hc_inner','hc_outer','hc_force','kal_segs','kal_zoom','kal_comp','topo_scale','topo_warp','pat_radius'].forEach(id => {
+        ['swirl','crepel','cforce','density','length','hc_base','hc_inner','hc_outer','hc_force','kal_segs','kal_zoom','kal_comp','topo_scale','topo_warp','pat_radius',
+         'wav_ang','wav_len','wav_amp','wav_chop',
+         'pipe_rad','pipe_x','pipe_curl','pipe_lip'
+        ].forEach(id => {
             const el = document.getElementById(id);
             if(el) document.getElementById('val_'+id).value = el.value;
         });
@@ -812,37 +853,29 @@
             const kZoom = parseFloat(document.getElementById('kal_zoom').value);
             const kComp = parseFloat(document.getElementById('kal_comp').value);
             
-            // Polar conversion
             let dx = x - cx; let dy = y - cy;
             let r = Math.sqrt(dx*dx + dy*dy);
             let theta = Math.atan2(dy, dx);
             if (theta < 0) theta += Math.PI * 2;
             
-            // Slices
             const slice = (Math.PI * 2) / kSegs;
             let segIdx = Math.floor(theta / slice);
             let localTheta = theta % slice;
             if (localTheta > slice/2) localTheta = slice - localTheta;
             
-            // Map back to space
-            let sx = cx + Math.cos(localTheta) * r;
-            let sy = cy + Math.sin(localTheta) * r;
-            let n = Perlin.noise(sx * kZoom, sy * kZoom, 0);
+            let swirlOffset = (swirl * r / 300);
+            let nSx = cx + Math.cos(localTheta + swirlOffset) * r;
+            let nSy = cy + Math.sin(localTheta + swirlOffset) * r;
+            
+            let n = Perlin.noise(nSx * kZoom, nSy * kZoom, 0);
             let rot = n * kComp;
             
-            // FIX: Add global swirl to the local rotation logic
-            // We perturb the 'localTheta' by the swirl amount before calculating base vectors
-            let swirlOffset = (swirl * r / 300);
-            
-            // Base flow is radial relative to the slice
             let baseVx = Math.cos(localTheta + swirlOffset);
             let baseVy = Math.sin(localTheta + swirlOffset);
             
-            // Perturb by noise
             let lvx = baseVx * Math.cos(rot) - baseVy * Math.sin(rot);
             let lvy = baseVx * Math.sin(rot) + baseVy * Math.cos(rot);
             
-            // Rotate result back to correct segment
             let finalRot = segIdx * slice;
             vx = lvx * Math.cos(finalRot) - lvy * Math.sin(finalRot);
             vy = lvx * Math.sin(finalRot) + lvy * Math.cos(finalRot);
@@ -867,6 +900,55 @@
             let dy = (n3 - n1) / eps;
             
             vx = -dy; vy = dx;
+        } else if (mode === 'wave') {
+            const wAng = parseFloat(document.getElementById('wav_ang').value) * (Math.PI/180);
+            const wLen = parseFloat(document.getElementById('wav_len').value);
+            const wAmp = parseFloat(document.getElementById('wav_amp').value);
+            const wChop = parseFloat(document.getElementById('wav_chop').value);
+            
+            let ca = Math.cos(wAng); let sa = Math.sin(wAng);
+            let rx = x * ca + y * sa; 
+            let n = Perlin.noise(x * 0.01, y * 0.01, 0) * wChop;
+            let curve = Math.sin((rx / wLen) + n) * wAmp;
+            vx = ca - sa * curve;
+            vy = sa + ca * curve;
+        } else if (mode === 'pipeline') {
+            // NEW PIPELINE: BARREL VIEW
+            const pRad = parseFloat(document.getElementById('pipe_rad').value);
+            const pX = parseFloat(document.getElementById('pipe_x').value);
+            const pCurl = parseFloat(document.getElementById('pipe_curl').value);
+            const pLip = parseFloat(document.getElementById('pipe_lip').value);
+
+            // Shift focus point
+            let tx = x - (cx + pX);
+            let ty = y - cy;
+            
+            // Polar coordinates from barrel center
+            let r = Math.sqrt(tx*tx + ty*ty);
+            let theta = Math.atan2(ty, tx);
+
+            // Progressive Spiral Angle (The "Looking Down The Barrel" Math)
+            // Logarithmic spiral angle depends on distance from center
+            // At center (r=0), angle is steep. As r increases, angle flattens.
+            // pCurl controls how "tight" the spiral is.
+            
+            let spiralAngle = theta + Math.PI/2 + (pCurl * Math.log(r/pRad));
+            
+            // Calculate base vector from spiral angle
+            let svx = Math.cos(spiralAngle);
+            let svy = Math.sin(spiralAngle);
+            
+            // Asymmetry: Gravity Bias on Top (Lip)
+            // If y < 0 (top half), add downward vector to simulate lip throwing over
+            if (ty < 0) {
+                // Stronger effect as x approaches 0 (the peak)
+                let gravityStrength = pLip * (1 - Math.abs(tx)/300);
+                if (gravityStrength < 0) gravityStrength = 0;
+                svy += gravityStrength; 
+            }
+
+            vx = svx;
+            vy = svy;
         }
 
         // --- 2. ACCUMULATE OBSTACLE INFLUENCE ---
@@ -918,7 +1000,6 @@
     }
 
     function generate() {
-        // High DPI Support
         const dpr = window.devicePixelRatio || 1;
         canvas.width = 600 * dpr;
         canvas.height = 600 * dpr;
@@ -962,9 +1043,14 @@
             ctx.lineWidth = 0.5;
             
             for(let i=0; i<dens; i++) {
+                // FIX FOR CENTER DENSITY: Uniform Disk Sampling
+                // r = sqrt(random) * radius ensures uniform distribution
                 let r = Math.sqrt(Math.random()) * patRadius;
-                if(is_gravity && Math.random() > 0.3) r = (patRadius - 10) - (Math.random() * 100);
-                if(mode === 'damascus' || mode === 'kaleidoscope' || mode === 'topo') r = Math.random() * patRadius;
+                
+                // Exceptions for specific visual effects
+                if(is_gravity && Math.random() > 0.3) {
+                     r = (patRadius - 10) - (Math.random() * 100);
+                }
 
                 let th = Math.random() * Math.PI * 2;
                 let px = cx + Math.cos(th)*r;
@@ -990,9 +1076,7 @@
                     for(let o of obstacles) {
                         if(Math.sqrt((px-o.x)**2 + (py-o.y)**2) < Math.min(o.w, o.h)*0.95) crash=true;
                     }
-                    if(mode === 'center') {
-                        if (is_gravity && Math.sqrt((px-cx)**2 + (py-cy)**2) < 8) crash = true;
-                    }
+                    if(mode === 'center' && is_gravity && Math.sqrt((px-cx)**2 + (py-cy)**2) < 8) crash = true;
                     if(mode === 'dipole') {
                         if (p1f < 0 && Math.sqrt((px-p1x)**2 + (py-p1y)**2) < 10) crash = true;
                         if (p2f < 0 && Math.sqrt((px-p2x)**2 + (py-p2y)**2) < 10) crash = true;
@@ -1065,7 +1149,7 @@
         const blob = new Blob([svg], {type:"image/svg+xml"});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href=url; a.download="chronos_v48.svg";
+        a.href=url; a.download="chronos_v52.svg";
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
     }
 
