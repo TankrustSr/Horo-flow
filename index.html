@@ -2,395 +2,423 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chronos Flow v40: Topo Reseed</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chronos Flow v48: Swirl Fix</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,700&family=Cinzel:wght@400;700&family=Great+Vibes&family=Italiana&family=Julius+Sans+One&family=Montserrat:wght@300;400;700&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Pinyon+Script&display=swap" rel="stylesheet">
 
     <style>
+        * { box-sizing: border-box; }
         body {
             background-color: #121212;
             color: #ddd;
             font-family: 'Montserrat', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             margin: 0;
-            padding: 20px;
-        }
-        h1 { margin: 0 0 5px 0; color: #fff; font-weight: 400; letter-spacing: 3px; font-family: 'Cinzel', serif; }
-        .sub { font-size: 0.8em; color: #00e5ff; margin-bottom: 20px; letter-spacing: 1px; }
-
-        #font-status {
-            position: absolute; top: 20px; right: 20px;
-            font-size: 0.7em; color: #555; display: flex; align-items: center; gap: 5px;
-        }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #f00; box-shadow: 0 0 5px #f00; transition: background 0.3s; }
-        .status-dot.ready { background: #0f0; box-shadow: 0 0 5px #0f0; }
-
-        .container {
-            position: relative;
-            width: 600px; height: 600px;
-            background: #fff;
-            border-radius: 50%;
-            border: 4px solid #333;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-        canvas { display: block; }
-        
-        .controls {
-            background: #222;
-            padding: 20px;
-            border-radius: 8px;
-            width: 950px;
+            padding: 0;
+            height: 100vh;
+            height: 100dvh; 
+            overflow: hidden; 
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            grid-template-columns: 340px 1fr 340px;
+            grid-template-rows: 1fr auto;
+            grid-template-areas: 
+                "left main right"
+                "bottom bottom bottom";
         }
 
-        .preset-bar {
-            grid-column: span 3;
-            background: #333;
-            padding: 10px;
-            border-radius: 4px;
+        /* SIDEBARS */
+        #left-sidebar, #right-sidebar {
+            background: #1e1e1e;
+            padding: 15px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; 
+        }
+        #left-sidebar { grid-area: left; border-right: 1px solid #333; }
+        #right-sidebar { grid-area: right; border-left: 1px solid #333; }
+
+        /* CENTER */
+        main {
+            grid-area: main;
+            background: #000;
             display: flex;
-            gap: 10px;
             align-items: center;
-            border: 1px solid #555;
-            margin-bottom: 10px;
-        }
-        .preset-bar input { width: 200px; padding: 5px; background: #222; border: 1px solid #444; color: #fff; }
-        .preset-bar select { flex-grow: 1; padding: 5px; background: #222; border: 1px solid #444; color: #fff; }
-        .preset-btn { padding: 5px 15px; cursor: pointer; border: none; font-weight: bold; border-radius: 3px; }
-        .btn-save { background: #00d2ff; color: #000; }
-        .btn-load { background: #444; color: #fff; }
-        .btn-del { background: #ff4444; color: #fff; }
-        .btn-reseed { background: #ff9955; color: #000; width: 100%; margin-top: 10px; padding: 10px;}
-
-        .global-controls {
-            grid-column: span 3;
-            background: #1a1a1a;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            border: 1px solid #444;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        .phys-group {
-            display: none; 
-            padding-top: 10px;
-            border-top: 1px dashed #444;
-        }
-        .phys-group.active { display: block; }
-        
-        .center-controls, .pole-container, .grid-controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        .pole-box {
+        /* BOTTOM BAR */
+        #bottom-bar {
+            grid-area: bottom;
             background: #252525;
-            padding: 10px;
-            border-radius: 4px;
+            border-top: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            gap: 20px;
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
+            z-index: 10;
         }
-        .pole-title { font-size: 0.8em; color: #ff9900; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; }
-        .pole-title.blue { color: #0099ff; }
 
-        .basic-global {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+        /* COMPACT TITLE IN SIDEBAR */
+        h1.sidebar-title { 
+            margin: 0 0 15px 0; 
+            color: #fff; 
+            font-weight: 400; 
+            letter-spacing: 2px; 
+            font-family: 'Cinzel', serif; 
+            font-size: 1.2em; 
+            text-align: center;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
         }
         
-        #rings_wrapper {
-            grid-column: span 3;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            transition: opacity 0.3s;
-        }
-        .rings-disabled { opacity: 0.2; pointer-events: none; }
-
-        .ring-block {
-            background: #2a2a2a;
-            padding: 15px;
-            border-radius: 4px;
+        h3 { margin: 0 0 8px 0; color: #fff; font-size: 0.85em; border-bottom: 1px solid #555; padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* CONTROLS */
+        label { display: flex; justify-content: space-between; align-items: center; font-size: 0.7em; margin-bottom: 2px; color: #aaa; margin-top: 6px;}
+        
+        input[type=number] {
+            background: #111;
             border: 1px solid #444;
+            color: #00e5ff;
+            font-family: monospace;
+            width: 55px;
+            padding: 2px 4px;
+            border-radius: 3px;
+            text-align: right;
+            font-size: 0.9em;
         }
+        input[type=number]:focus { outline: 1px solid #00e5ff; border-color: #00e5ff; }
 
-        h3 { margin: 0 0 10px 0; color: #fff; font-size: 0.9em; border-bottom: 1px solid #555; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        input[type=range] { width: 100%; margin-bottom: 4px; cursor: pointer; accent-color: #00e5ff; height: 4px; display: block;}
+        select { width: 100%; margin-bottom: 4px; background: #333; color: #fff; border: 1px solid #555; padding: 3px; border-radius: 4px; font-family: sans-serif; font-size: 0.9em;}
+        input[type=checkbox] { accent-color: #00e5ff; width: 14px; height: 14px; cursor: pointer; }
+        input[type=text] { padding: 6px; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; font-size: 0.9em;}
+
+        .control-block {
+            background: #2a2a2a;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            margin-bottom: 12px;
+        }
         
+        .phys-group { display: none; margin-top: 8px; border-top: 1px dashed #555; padding-top: 8px;}
+        .phys-group.active { display: block; }
+
         .type-block {
-            margin-top: 15px;
-            padding-top: 10px;
+            margin-top: 8px;
+            padding-top: 8px;
             border-top: 1px dashed #555;
             background: rgba(0,0,0,0.2);
-            padding: 10px;
+            padding: 8px;
             border-radius: 4px;
         }
-        .type-header { font-size: 0.7em; color: #888; text-transform: uppercase; margin-bottom: 8px; font-weight: bold; letter-spacing: 1px; }
+        .type-header { font-size: 0.7em; color: #888; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; letter-spacing: 1px; }
 
         .slider-wrapper { transition: opacity 0.2s; }
         .slider-wrapper.disabled { opacity: 0.3; pointer-events: none; }
         .input-disabled { opacity: 0.4; pointer-events: none; }
-        
-        label { display: flex; justify-content: space-between; font-size: 0.75em; margin-bottom: 3px; color: #aaa; }
-        span.val { color: #00e5ff; font-family: monospace; }
-        
-        input[type=range] { width: 100%; margin-bottom: 8px; cursor: pointer; accent-color: #00e5ff; height: 4px;}
-        select { width: 100%; margin-bottom: 8px; background: #444; color: #fff; border: 1px solid #555; padding: 4px; border-radius: 4px; font-family: sans-serif;}
-        input[type=checkbox] { accent-color: #00e5ff; width: 16px; height: 16px; cursor: pointer; }
+        .rings-disabled { opacity: 0.2; pointer-events: none; }
 
-        .actions {
-            grid-column: span 3;
-            display: flex; gap: 10px; margin-top: 10px;
+        .canvas-container {
+            width: 600px; height: 600px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            overflow: hidden;
+            max-width: 90vw;
+            max-height: 90vw;
         }
-        button {
-            padding: 15px; border: none; font-weight: bold; cursor: pointer; flex: 1; border-radius: 4px;
-            font-size: 1em; text-transform: uppercase;
-        }
+        canvas { display: block; width: 100%; height: 100%; }
+
+        /* BUTTONS */
+        .preset-wrapper { display: flex; gap: 8px; align-items: center; flex-grow: 1; }
+        .preset-wrapper select { margin-bottom: 0; flex-grow: 1; padding: 6px;}
+        .btn { padding: 8px 16px; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; font-size: 0.75em; }
         .btn-gen { background: #00e5ff; color: #000; }
         .btn-gen:hover { background: #66e0ff; }
         .btn-dl { background: #444; color: #fff; }
         .btn-dl:hover { background: #555; }
+        .btn-save { background: #00d2ff; color: #000; padding: 6px 12px;}
+        .btn-load { background: #555; color: #fff; padding: 6px 12px;}
+        .btn-del { background: #ff4444; color: #fff; padding: 6px 10px;}
+        .btn-reseed { background: #ff9955; color: #000; width: 100%; margin-top: 8px; padding: 6px; border:none; cursor: pointer; border-radius:4px; font-weight: bold;}
+
+        /* Moved Status to bottom bar */
+        #font-status { 
+            font-size: 0.7em; color: #888; display: flex; align-items: center; gap: 5px; margin-right: 15px;
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #f00; box-shadow: 0 0 5px #f00; }
+        .status-dot.ready { background: #0f0; box-shadow: 0 0 5px #0f0; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        .pole-container { display: flex; flex-direction: column; gap: 10px; }
+        .pole-box { background: #252525; padding: 8px; border-radius: 4px; border: 1px solid #444; }
+        .pole-title { font-size: 0.7em; color: #ff9900; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; border-bottom: 1px solid #444; padding-bottom: 3px; }
+        .pole-title.blue { color: #0099ff; }
         
-        option.opt-cinzel { font-family: 'Cinzel', serif; }
-        option.opt-bodoni { font-family: 'Bodoni Moda', serif; }
-        option.opt-italiana { font-family: 'Italiana', serif; }
-        option.opt-julius { font-family: 'Julius Sans One', sans-serif; }
-        option.opt-mont { font-family: 'Montserrat', sans-serif; }
-        option.opt-philo { font-family: 'Philosopher', sans-serif; }
-        option.opt-vibes { font-family: 'Great Vibes', cursive; }
-        option.opt-pinyon { font-family: 'Pinyon Script', cursive; }
+        #rings_wrapper {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            transition: opacity 0.3s;
+        }
+        @media (max-width: 1400px) {
+            #rings_wrapper { grid-template-columns: 1fr; }
+        }
+
     </style>
 </head>
 <body>
 
-    <div id="font-status"><div class="status-dot" id="status-dot"></div> <span id="status-text">Loading Fonts...</span></div>
+    <aside id="left-sidebar">
+        <h1 class="sidebar-title">Chronos Flow v48</h1>
 
-    <h1>Chronos Flow v40</h1>
-    <div class="sub">Topo Reseed</div>
-
-    <div class="container">
-        <canvas id="canvas" width="600" height="600"></canvas>
-    </div>
-
-    <div class="controls">
-        
-        <div class="preset-bar">
-            <input type="text" id="preset_name" placeholder="Preset Name">
-            <button class="preset-btn btn-save" onclick="savePreset()">Save</button>
-            <select id="preset_list"></select>
-            <button class="preset-btn btn-load" onclick="loadPreset()">Load</button>
-            <button class="preset-btn btn-del" onclick="deletePreset()">X</button>
+        <div class="control-block">
+            <h3>Global Settings</h3>
+            <label style="color:#fff; font-weight:bold;">Physics Mode</label>
+            <select id="phys_mode" onchange="togglePhysics()">
+                <option value="center">Single Singularity</option>
+                <option value="dipole">Magnetic Dipole</option>
+                <option value="damascus">Damascus Steel</option>
+                <option value="honeycomb" selected>Honeycomb Lattice</option>
+                <option value="kaleidoscope">Kaleidoscope</option>
+                <option value="topo">Topographic (Isobars)</option>
+            </select>
+            
+            <label>Density <input type="number" id="val_density" value="2500" step="100" oninput="updateFromNum('density')"></label>
+            <input type="range" id="density" min="500" max="5000" step="100" value="2500" oninput="liveUpdate()">
+            
+            <label>Line Length <input type="number" id="val_length" value="100" step="10" oninput="updateFromNum('length')"></label>
+            <input type="range" id="length" min="20" max="300" value="100" oninput="liveUpdate()">
+            
+            <label>Swirl <input type="number" id="val_swirl" value="0.3" step="0.1" oninput="updateFromNum('swirl')"></label>
+            <input type="range" id="swirl" min="-5.0" max="5.0" step="0.1" value="0.3" oninput="liveUpdate()">
+            
+            <label style="color:#ffcc00">Pattern Radius <input type="number" id="val_pat_radius" value="300" step="10" oninput="updateFromNum('pat_radius')"></label>
+            <input type="range" id="pat_radius" min="200" max="400" step="10" value="300" oninput="liveUpdate()">
         </div>
 
-        <div class="global-controls">
-            <div class="basic-global">
-                <div>
-                    <label style="color:#fff; font-weight:bold;">Physics Mode</label>
-                    <select id="phys_mode" onchange="togglePhysics()">
-                        <option value="center">Single Singularity</option>
-                        <option value="dipole">Magnetic Dipole</option>
-                        <option value="damascus">Damascus Steel</option>
-                        <option value="honeycomb">Honeycomb Lattice</option>
-                        <option value="kaleidoscope">Kaleidoscope</option>
-                        <option value="topo" selected>Topographic (Isobars)</option>
-                    </select>
-                </div>
-                <div><label>Density <span id="val_density">2500</span></label><input type="range" id="density" min="500" max="5000" step="500" value="2500" oninput="liveUpdate()"></div>
-                <div><label>Line Length <span id="val_length">100</span></label><input type="range" id="length" min="20" max="300" value="100" oninput="liveUpdate()"></div>
-                <div><label>Background Swirl <span id="val_swirl">0.3</span></label><input type="range" id="swirl" min="-5.0" max="5.0" step="0.1" value="0.3" oninput="liveUpdate()"></div>
-            </div>
-
+        <div class="control-block">
+            <h3>Physics Parameters</h3>
+            
             <div id="grp_center" class="phys-group">
-                <div class="center-controls">
-                    <div><label>Influence Radius <span id="val_crepel">100</span></label><input type="range" id="crepel" min="0" max="350" value="100" oninput="liveUpdate()"></div>
-                    <div><label style="color:#00e5ff">Force (+Repel / -Gravity) <span id="val_cforce">-3.0</span></label><input type="range" id="cforce" min="-5.0" max="5.0" step="0.1" value="-3.0" oninput="liveUpdate()"></div>
-                </div>
+                <label>Radius <input type="number" id="val_crepel" value="100" oninput="updateFromNum('crepel')"></label>
+                <input type="range" id="crepel" min="0" max="350" value="100" oninput="liveUpdate()">
+                
+                <label style="color:#00e5ff">Force <input type="number" id="val_cforce" value="-3.0" step="0.1" oninput="updateFromNum('cforce')"></label>
+                <input type="range" id="cforce" min="-5.0" max="5.0" step="0.1" value="-3.0" oninput="liveUpdate()">
             </div>
 
             <div id="grp_dipole" class="phys-group">
                 <div class="pole-container">
                     <div class="pole-box">
                         <div class="pole-title">Pole 1 (Orange)</div>
-                        <label>Angle <span id="val_p1_ang">270°</span></label><input type="range" id="p1_ang" min="0" max="360" value="270" oninput="liveUpdate()">
-                        <label>Distance <span id="val_p1_dist">250</span></label><input type="range" id="p1_dist" min="0" max="300" value="250" oninput="liveUpdate()">
-                        <label>Force <span id="val_p1_force">2.5</span></label><input type="range" id="p1_force" min="-5.0" max="5.0" step="0.1" value="2.5" oninput="liveUpdate()">
+                        <label>Angle <input type="number" id="val_p1_ang" value="270" oninput="updateFromNum('p1_ang')"></label>
+                        <input type="range" id="p1_ang" min="0" max="360" value="270" oninput="liveUpdate()">
+                        
+                        <label>Distance <input type="number" id="val_p1_dist" value="250" oninput="updateFromNum('p1_dist')"></label>
+                        <input type="range" id="p1_dist" min="0" max="300" value="250" oninput="liveUpdate()">
+                        
+                        <label>Force <input type="number" id="val_p1_force" value="2.5" step="0.1" oninput="updateFromNum('p1_force')"></label>
+                        <input type="range" id="p1_force" min="-5.0" max="5.0" step="0.1" value="2.5" oninput="liveUpdate()">
                     </div>
                     <div class="pole-box">
                         <div class="pole-title blue">Pole 2 (Blue)</div>
-                        <label>Angle <span id="val_p2_ang">90°</span></label><input type="range" id="p2_ang" min="0" max="360" value="90" oninput="liveUpdate()">
-                        <label>Distance <span id="val_p2_dist">250</span></label><input type="range" id="p2_dist" min="0" max="300" value="250" oninput="liveUpdate()">
-                        <label>Force <span id="val_p2_force">-2.5</span></label><input type="range" id="p2_force" min="-5.0" max="5.0" step="0.1" value="-2.5" oninput="liveUpdate()">
+                        <label>Angle <input type="number" id="val_p2_ang" value="90" oninput="updateFromNum('p2_ang')"></label>
+                        <input type="range" id="p2_ang" min="0" max="360" value="90" oninput="liveUpdate()">
+                        
+                        <label>Distance <input type="number" id="val_p2_dist" value="250" oninput="updateFromNum('p2_dist')"></label>
+                        <input type="range" id="p2_dist" min="0" max="300" value="250" oninput="liveUpdate()">
+                        
+                        <label>Force <input type="number" id="val_p2_force" value="-2.5" step="0.1" oninput="updateFromNum('p2_force')"></label>
+                        <input type="range" id="p2_force" min="-5.0" max="5.0" step="0.1" value="-2.5" oninput="liveUpdate()">
                     </div>
                 </div>
             </div>
 
             <div id="grp_damascus" class="phys-group">
-                <div class="center-controls">
-                    <div><label style="color:#00ff88">Grain Scale <span id="val_dam_scale">0.010</span></label><input type="range" id="dam_scale" min="0.001" max="0.050" step="0.001" value="0.010" oninput="liveUpdate()"></div>
-                    <div><label style="color:#00ff88">Distortion <span id="val_dam_turb">3.0</span></label><input type="range" id="dam_turb" min="0.0" max="10.0" step="0.1" value="3.0" oninput="liveUpdate()"></div>
-                    <div><label style="color:#00ff88">Direction <span id="val_dam_ang">45°</span></label><input type="range" id="dam_ang" min="0" max="360" value="45" oninput="liveUpdate()"></div>
-                </div>
+                <label style="color:#00ff88">Scale <input type="number" id="val_dam_scale" value="0.010" step="0.001" oninput="updateFromNum('dam_scale')"></label>
+                <input type="range" id="dam_scale" min="0.001" max="0.050" step="0.001" value="0.010" oninput="liveUpdate()">
+                
+                <label style="color:#00ff88">Distortion <input type="number" id="val_dam_turb" value="3.0" step="0.1" oninput="updateFromNum('dam_turb')"></label>
+                <input type="range" id="dam_turb" min="0.0" max="10.0" step="0.1" value="3.0" oninput="liveUpdate()">
+                
+                <label style="color:#00ff88">Direction <input type="number" id="val_dam_ang" value="45" oninput="updateFromNum('dam_ang')"></label>
+                <input type="range" id="dam_ang" min="0" max="360" value="45" oninput="liveUpdate()">
+                <button class="btn-reseed" onclick="reseedNoise()">Reseed Pattern</button>
             </div>
 
-            <div id="grp_honeycomb" class="phys-group">
-                <div class="grid-controls">
-                    <div><label style="color:#ffd700">Grid Base Spacing <span id="val_hc_base">30</span></label><input type="range" id="hc_base" min="20" max="80" value="30" oninput="liveUpdate()"></div>
-                    <div><label style="color:#ffd700">Inner Cell Size <span id="val_hc_inner">15</span></label><input type="range" id="hc_inner" min="2" max="60" value="15" oninput="liveUpdate()"></div>
-                    <div><label style="color:#ffd700">Outer Cell Size <span id="val_hc_outer">30</span></label><input type="range" id="hc_outer" min="2" max="60" value="30" oninput="liveUpdate()"></div>
-                    <div><label style="color:#ffd700">Grid Shape</label>
-                        <select id="hc_shape" onchange="liveUpdate()">
-                            <option value="hexagon" selected>Hexagon</option>
-                            <option value="round">Round</option>
-                            <option value="square">Square</option>
-                            <option value="diamond">Diamond</option>
-                        </select>
-                    </div>
-                    <div><label style="color:#ffd700">Obstacle Force <span id="val_hc_force">3.0</span></label><input type="range" id="hc_force" min="0.5" max="5.0" step="0.1" value="3.0" oninput="liveUpdate()"></div>
-                </div>
+            <div id="grp_honeycomb" class="phys-group active">
+                <label style="color:#ffd700">Base Spacing <input type="number" id="val_hc_base" value="30" oninput="updateFromNum('hc_base')"></label>
+                <input type="range" id="hc_base" min="20" max="80" value="30" oninput="liveUpdate()">
+                
+                <label style="color:#ffd700">Inner Size <input type="number" id="val_hc_inner" value="15" oninput="updateFromNum('hc_inner')"></label>
+                <input type="range" id="hc_inner" min="2" max="60" value="15" oninput="liveUpdate()">
+                
+                <label style="color:#ffd700">Outer Size <input type="number" id="val_hc_outer" value="30" oninput="updateFromNum('hc_outer')"></label>
+                <input type="range" id="hc_outer" min="2" max="60" value="30" oninput="liveUpdate()">
+                
+                <label style="color:#ffd700">Grid Shape</label>
+                <select id="hc_shape" onchange="liveUpdate()">
+                    <option value="hexagon" selected>Hexagon</option>
+                    <option value="round">Round</option>
+                    <option value="square">Square</option>
+                    <option value="diamond">Diamond</option>
+                </select>
+                
+                <label style="color:#ffd700">Obstacle Force <input type="number" id="val_hc_force" value="3.0" step="0.1" oninput="updateFromNum('hc_force')"></label>
+                <input type="range" id="hc_force" min="0.5" max="5.0" step="0.1" value="3.0" oninput="liveUpdate()">
             </div>
 
             <div id="grp_kaleidoscope" class="phys-group">
-                <div class="center-controls">
-                    <div><label style="color:#ff00ff">Segments <span id="val_kal_segs">6</span></label><input type="range" id="kal_segs" min="3" max="24" step="1" value="6" oninput="liveUpdate()"></div>
-                    <div><label style="color:#ff00ff">Pattern Zoom <span id="val_kal_zoom">0.015</span></label><input type="range" id="kal_zoom" min="0.005" max="0.050" step="0.001" value="0.015" oninput="liveUpdate()"></div>
-                    <div><label style="color:#ff00ff">Complexity <span id="val_kal_comp">2.0</span></label><input type="range" id="kal_comp" min="0.0" max="10.0" step="0.1" value="2.0" oninput="liveUpdate()"></div>
-                </div>
+                <label style="color:#ff00ff">Segments <input type="number" id="val_kal_segs" value="6" step="1" oninput="updateFromNum('kal_segs')"></label>
+                <input type="range" id="kal_segs" min="3" max="24" step="1" value="6" oninput="liveUpdate()">
+                
+                <label style="color:#ff00ff">Zoom <input type="number" id="val_kal_zoom" value="0.015" step="0.001" oninput="updateFromNum('kal_zoom')"></label>
+                <input type="range" id="kal_zoom" min="0.005" max="0.050" step="0.001" value="0.015" oninput="liveUpdate()">
+                
+                <label style="color:#ff00ff">Complexity <input type="number" id="val_kal_comp" value="2.0" step="0.1" oninput="updateFromNum('kal_comp')"></label>
+                <input type="range" id="kal_comp" min="0.0" max="10.0" step="0.1" value="2.0" oninput="liveUpdate()">
+                <button class="btn-reseed" onclick="reseedNoise()">Reseed Pattern</button>
             </div>
 
-            <div id="grp_topo" class="phys-group active">
-                <div class="center-controls">
-                    <div><label style="color:#ff9955">Terrain Scale <span id="val_topo_scale">0.010</span></label><input type="range" id="topo_scale" min="0.002" max="0.030" step="0.001" value="0.010" oninput="liveUpdate()"></div>
-                    <div><label style="color:#ff9955">Ruggedness (Warp) <span id="val_topo_warp">1.0</span></label><input type="range" id="topo_warp" min="0.0" max="5.0" step="0.1" value="1.0" oninput="liveUpdate()"></div>
-                </div>
-                <button class="preset-btn btn-reseed" onclick="reseedTopo()">Reseed Terrain</button>
+            <div id="grp_topo" class="phys-group">
+                <label style="color:#ff9955">Scale <input type="number" id="val_topo_scale" value="0.010" step="0.001" oninput="updateFromNum('topo_scale')"></label>
+                <input type="range" id="topo_scale" min="0.002" max="0.030" step="0.001" value="0.010" oninput="liveUpdate()">
+                
+                <label style="color:#ff9955">Ruggedness <input type="number" id="val_topo_warp" value="1.0" step="0.1" oninput="updateFromNum('topo_warp')"></label>
+                <input type="range" id="topo_warp" min="0.0" max="5.0" step="0.1" value="1.0" oninput="liveUpdate()">
+                
+                <button class="btn-reseed" onclick="reseedNoise()">Reseed Terrain</button>
             </div>
         </div>
+    </aside>
 
+    <main>
+        <div class="canvas-container">
+            <canvas id="canvas" width="600" height="600"></canvas>
+        </div>
+    </main>
+
+    <aside id="right-sidebar">
         <div id="rings_wrapper" class="rings-disabled">
-            <div class="ring-block">
+            <div class="control-block ring-block">
                 <h3>Inner Ring <input type="checkbox" id="on_r1" checked onchange="toggle('r1')"></h3>
                 <div id="wrap_r1" class="slider-wrapper">
-                    <label>Pattern Mode</label>
-                    <select id="pat_r1" onchange="toggleCount('r1')">
-                        <option value="custom">Custom Count</option>
-                        <option value="12h">12-Hour</option>
-                        <option value="no_card" selected>No Cardinals</option>
-                        <option value="card_only">Cardinals Only</option>
-                    </select>
-                    <div id="cnt_box_r1" class="input-disabled"><label>Count <span id="val_c_r1">12</span></label><input type="range" id="c_r1" min="1" max="60" value="12" oninput="liveUpdate()"></div>
-                    <label>Rotation Offset <span id="val_rot_r1">0°</span></label><input type="range" id="rot_r1" min="0" max="360" value="0" oninput="liveUpdate()">
-                    <label>Distance <span id="val_d_r1">160</span></label><input type="range" id="d_r1" min="50" max="290" value="160" oninput="liveUpdate()">
+                    <label>Mode</label>
+                    <select id="pat_r1" onchange="toggleCount('r1')"><option value="custom">Custom</option><option value="12h">12-Hour</option><option value="no_card" selected>No Card.</option><option value="card_only">Card. Only</option></select>
+                    
+                    <div id="cnt_box_r1" class="input-disabled">
+                        <label>Count <input type="number" id="val_c_r1" value="12" oninput="updateFromNum('c_r1')"></label>
+                        <input type="range" id="c_r1" min="1" max="60" value="12" oninput="liveUpdate()">
+                    </div>
+                    
+                    <label>Rot <input type="number" id="val_rot_r1" value="0" oninput="updateFromNum('rot_r1')"></label>
+                    <input type="range" id="rot_r1" min="0" max="360" value="0" oninput="liveUpdate()">
+                    
+                    <label>Dist <input type="number" id="val_d_r1" value="160" oninput="updateFromNum('d_r1')"></label>
+                    <input type="range" id="d_r1" min="50" max="290" value="160" oninput="liveUpdate()">
+                    
                     <label>Shape</label><select id="s_r1" onchange="requestGenerate()"><option value="round">Round</option><option value="square">Square</option><option value="baton">Baton</option></select>
-                    <label>Size <span id="val_z_r1">18</span></label><input type="range" id="z_r1" min="4" max="40" value="18" oninput="liveUpdate()">
-                    <label>Deflection <span id="val_f_r1">1.5</span></label><input type="range" id="f_r1" min="0.5" max="5.0" step="0.1" value="1.5" oninput="liveUpdate()">
-                    <label>Graduality <span id="val_sm_r1">3.0</span></label><input type="range" id="sm_r1" min="1.0" max="6.0" step="0.5" value="3.0" oninput="liveUpdate()">
+                    
+                    <label>Size <input type="number" id="val_z_r1" value="18" oninput="updateFromNum('z_r1')"></label>
+                    <input type="range" id="z_r1" min="4" max="40" value="18" oninput="liveUpdate()">
+                    
+                    <label>Force <input type="number" id="val_f_r1" value="1.5" step="0.1" oninput="updateFromNum('f_r1')"></label>
+                    <input type="range" id="f_r1" min="0.5" max="5.0" step="0.1" value="1.5" oninput="liveUpdate()">
+                    
+                    <label style="color:#00e5ff">Spin <input type="number" id="val_spin_r1" value="0.0" step="0.1" oninput="updateFromNum('spin_r1')"></label>
+                    <input type="range" id="spin_r1" min="-5.0" max="5.0" step="0.1" value="0.0" oninput="liveUpdate()">
+                    
+                    <label>Grade <input type="number" id="val_sm_r1" value="3.0" step="0.5" oninput="updateFromNum('sm_r1')"></label>
+                    <input type="range" id="sm_r1" min="1.0" max="25.0" step="0.5" value="3.0" oninput="liveUpdate()">
+                    
                     <div class="type-block">
                         <div class="type-header">Typography</div>
-                        <label>Show Numbers <input type="checkbox" id="txt_on_r1" checked onchange="requestGenerate()"></label>
-                        <label>Font</label>
-                        <select id="font_r1" onchange="requestGenerate()">
-                            <option value="Cinzel" class="opt-cinzel">Cinzel</option>
-                            <option value="Bodoni Moda" class="opt-bodoni">Bodoni</option>
-                            <option value="Philosopher" class="opt-philo">Philosopher</option>
-                            <option value="Italiana" class="opt-italiana">Italiana</option>
-                            <option value="Julius Sans One" class="opt-julius">Julius</option>
-                            <option value="Montserrat" class="opt-mont">Montserrat</option>
-                            <option value="Pinyon Script" class="opt-pinyon">Pinyon</option>
-                            <option value="Great Vibes" class="opt-vibes">Great Vibes</option>
-                        </select>
-                        <label>Size <span id="val_ts_r1">14</span></label><input type="range" id="ts_r1" min="8" max="40" value="14" oninput="liveUpdate()">
-                        <label>X-Nudge <span id="val_tx_r1">0</span></label><input type="range" id="tx_r1" min="-10" max="10" step="1" value="0" oninput="liveUpdate()">
-                        <label>Y-Nudge <span id="val_ty_r1">0</span></label><input type="range" id="ty_r1" min="-10" max="10" step="1" value="0" oninput="liveUpdate()">
+                        <label>Show <input type="checkbox" id="txt_on_r1" checked onchange="requestGenerate()"></label>
+                        <select id="font_r1" onchange="requestGenerate()"><option value="Cinzel">Cinzel</option><option value="Bodoni Moda">Bodoni</option><option value="Philosopher">Philosopher</option><option value="Italiana">Italiana</option><option value="Julius Sans One">Julius</option><option value="Montserrat">Montserrat</option><option value="Pinyon Script">Pinyon</option><option value="Great Vibes">Great Vibes</option></select>
+                        <label>Size <input type="number" id="val_ts_r1" value="14" oninput="updateFromNum('ts_r1')"></label>
+                        <input type="range" id="ts_r1" min="8" max="40" value="14" oninput="liveUpdate()">
+                        <label>X <input type="number" id="val_tx_r1" value="0" oninput="updateFromNum('tx_r1')"></label>
+                        <input type="range" id="tx_r1" min="-10" max="10" step="1" value="0" oninput="liveUpdate()">
+                        <label>Y <input type="number" id="val_ty_r1" value="0" oninput="updateFromNum('ty_r1')"></label>
+                        <input type="range" id="ty_r1" min="-10" max="10" step="1" value="0" oninput="liveUpdate()">
                     </div>
                 </div>
             </div>
 
-            <div class="ring-block">
+            <div class="control-block ring-block">
                 <h3>Middle Ring <input type="checkbox" id="on_r2" checked onchange="toggle('r2')"></h3>
                 <div id="wrap_r2" class="slider-wrapper">
-                    <label>Pattern Mode</label>
-                    <select id="pat_r2" onchange="toggleCount('r2')">
-                        <option value="custom">Custom Count</option>
-                        <option value="12h">12-Hour</option>
-                        <option value="no_card">No Cardinals</option>
-                        <option value="card_only" selected>Cardinals Only</option>
-                    </select>
-                    <div id="cnt_box_r2" class="input-disabled"><label>Count <span id="val_c_r2">4</span></label><input type="range" id="c_r2" min="1" max="60" value="4" oninput="liveUpdate()"></div>
-                    <label>Rotation Offset <span id="val_rot_r2">0°</span></label><input type="range" id="rot_r2" min="0" max="360" value="0" oninput="liveUpdate()">
-                    <label>Distance <span id="val_d_r2">220</span></label><input type="range" id="d_r2" min="50" max="290" value="220" oninput="liveUpdate()">
+                    <label>Mode</label>
+                    <select id="pat_r2" onchange="toggleCount('r2')"><option value="custom">Custom</option><option value="12h">12-Hour</option><option value="no_card">No Card.</option><option value="card_only" selected>Card. Only</option></select>
+                    <div id="cnt_box_r2" class="input-disabled"><label>Count <input type="number" id="val_c_r2" value="4" oninput="updateFromNum('c_r2')"></label><input type="range" id="c_r2" min="1" max="60" value="4" oninput="liveUpdate()"></div>
+                    <label>Rot <input type="number" id="val_rot_r2" value="0" oninput="updateFromNum('rot_r2')"></label><input type="range" id="rot_r2" min="0" max="360" value="0" oninput="liveUpdate()">
+                    <label>Dist <input type="number" id="val_d_r2" value="220" oninput="updateFromNum('d_r2')"></label><input type="range" id="d_r2" min="50" max="290" value="220" oninput="liveUpdate()">
                     <label>Shape</label><select id="s_r2" onchange="requestGenerate()"><option value="diamond">Diamond</option><option value="round">Round</option><option value="square">Square</option></select>
-                    <label>Size <span id="val_z_r2">15</span></label><input type="range" id="z_r2" min="4" max="40" value="15" oninput="liveUpdate()">
-                    <label>Deflection <span id="val_f_r2">2.0</span></label><input type="range" id="f_r2" min="0.5" max="5.0" step="0.1" value="2.0" oninput="liveUpdate()">
-                    <label>Graduality <span id="val_sm_r2">4.0</span></label><input type="range" id="sm_r2" min="1.0" max="6.0" step="0.5" value="4.0" oninput="liveUpdate()">
+                    <label>Size <input type="number" id="val_z_r2" value="15" oninput="updateFromNum('z_r2')"></label><input type="range" id="z_r2" min="4" max="40" value="15" oninput="liveUpdate()">
+                    <label>Force <input type="number" id="val_f_r2" value="2.0" step="0.1" oninput="updateFromNum('f_r2')"></label><input type="range" id="f_r2" min="0.5" max="5.0" step="0.1" value="2.0" oninput="liveUpdate()">
+                    <label style="color:#00e5ff">Spin <input type="number" id="val_spin_r2" value="0.0" step="0.1" oninput="updateFromNum('spin_r2')"></label><input type="range" id="spin_r2" min="-5.0" max="5.0" step="0.1" value="0.0" oninput="liveUpdate()">
+                    <label>Grade <input type="number" id="val_sm_r2" value="4.0" step="0.5" oninput="updateFromNum('sm_r2')"></label><input type="range" id="sm_r2" min="1.0" max="25.0" step="0.5" value="4.0" oninput="liveUpdate()">
                     <div class="type-block">
                         <div class="type-header">Typography</div>
-                        <label>Show Numbers <input type="checkbox" id="txt_on_r2" onchange="requestGenerate()"></label>
-                        <label>Font</label>
-                        <select id="font_r2" onchange="requestGenerate()">
-                            <option value="Cinzel" class="opt-cinzel">Cinzel</option>
-                            <option value="Bodoni Moda" class="opt-bodoni">Bodoni</option>
-                            <option value="Pinyon Script" class="opt-pinyon">Pinyon</option>
-                        </select>
-                        <label>Size <span id="val_ts_r2">10</span></label><input type="range" id="ts_r2" min="8" max="40" value="10" oninput="liveUpdate()">
-                        <label>X-Nudge <span id="val_tx_r2">0</span></label><input type="range" id="tx_r2" min="-10" max="10" step="1" value="0" oninput="liveUpdate()">
-                        <label>Y-Nudge <span id="val_ty_r2">0</span></label><input type="range" id="ty_r2" min="-10" max="10" step="1" value="0" oninput="liveUpdate()">
+                        <label>Show <input type="checkbox" id="txt_on_r2" onchange="requestGenerate()"></label>
+                        <select id="font_r2" onchange="requestGenerate()"><option value="Cinzel">Cinzel</option><option value="Bodoni Moda">Bodoni</option><option value="Pinyon Script">Pinyon</option></select>
+                        <label>Size <input type="number" id="val_ts_r2" value="10" oninput="updateFromNum('ts_r2')"></label><input type="range" id="ts_r2" min="8" max="40" value="10" oninput="liveUpdate()">
+                        <label>X <input type="number" id="val_tx_r2" value="0" oninput="updateFromNum('tx_r2')"></label><input type="range" id="tx_r2" min="-10" max="10" step="1" value="0" oninput="liveUpdate()">
+                        <label>Y <input type="number" id="val_ty_r2" value="0" oninput="updateFromNum('ty_r2')"></label><input type="range" id="ty_r2" min="-10" max="10" step="1" value="0" oninput="liveUpdate()">
                     </div>
                 </div>
             </div>
 
-            <div class="ring-block">
+            <div class="control-block ring-block">
                 <h3>Outer Ring <input type="checkbox" id="on_r3" checked onchange="toggle('r3')"></h3>
                 <div id="wrap_r3" class="slider-wrapper">
-                    <label>Pattern Mode</label>
-                    <select id="pat_r3" onchange="toggleCount('r3')">
-                        <option value="custom" selected>Custom Count</option>
-                        <option value="12h">12-Hour</option>
-                        <option value="no_card">No Cardinals</option>
-                        <option value="card_only">Cardinals Only</option>
-                    </select>
-                    <div id="cnt_box_r3"><label>Count <span id="val_c_r3">60</span></label><input type="range" id="c_r3" min="1" max="60" value="60" oninput="liveUpdate()"></div>
-                    <label>Rotation Offset <span id="val_rot_r3">0°</span></label><input type="range" id="rot_r3" min="0" max="360" value="0" oninput="liveUpdate()">
-                    <label>Distance <span id="val_d_r3">280</span></label><input type="range" id="d_r3" min="50" max="290" value="280" oninput="liveUpdate()">
+                    <label>Mode</label>
+                    <select id="pat_r3" onchange="toggleCount('r3')"><option value="custom" selected>Custom</option><option value="12h">12-Hour</option><option value="no_card">No Card.</option><option value="card_only">Card. Only</option></select>
+                    <div id="cnt_box_r3"><label>Count <input type="number" id="val_c_r3" value="60" oninput="updateFromNum('c_r3')"></label><input type="range" id="c_r3" min="1" max="60" value="60" oninput="liveUpdate()"></div>
+                    <label>Rot <input type="number" id="val_rot_r3" value="0" oninput="updateFromNum('rot_r3')"></label><input type="range" id="rot_r3" min="0" max="360" value="0" oninput="liveUpdate()">
+                    <label>Dist <input type="number" id="val_d_r3" value="280" oninput="updateFromNum('d_r3')"></label><input type="range" id="d_r3" min="50" max="290" value="280" oninput="liveUpdate()">
                     <label>Shape</label><select id="s_r3" onchange="requestGenerate()"><option value="baton">Baton</option><option value="round">Round</option><option value="square">Square</option></select>
-                    <label>Size <span id="val_z_r3">4</span></label><input type="range" id="z_r3" min="2" max="20" value="4" oninput="liveUpdate()">
-                    <label>Deflection <span id="val_f_r3">1.5</span></label><input type="range" id="f_r3" min="0.5" max="5.0" step="0.1" value="1.5" oninput="liveUpdate()">
-                    <label>Graduality <span id="val_sm_r3">2.0</span></label><input type="range" id="sm_r3" min="1.0" max="6.0" step="0.5" value="2.0" oninput="liveUpdate()">
+                    <label>Size <input type="number" id="val_z_r3" value="4" oninput="updateFromNum('z_r3')"></label><input type="range" id="z_r3" min="2" max="20" value="4" oninput="liveUpdate()">
+                    <label>Force <input type="number" id="val_f_r3" value="1.5" step="0.1" oninput="updateFromNum('f_r3')"></label><input type="range" id="f_r3" min="0.5" max="5.0" step="0.1" value="1.5" oninput="liveUpdate()">
+                    <label style="color:#00e5ff">Spin <input type="number" id="val_spin_r3" value="0.0" step="0.1" oninput="updateFromNum('spin_r3')"></label><input type="range" id="spin_r3" min="-5.0" max="5.0" step="0.1" value="0.0" oninput="liveUpdate()">
+                    <label>Grade <input type="number" id="val_sm_r3" value="2.0" step="0.5" oninput="updateFromNum('sm_r3')"></label><input type="range" id="sm_r3" min="1.0" max="25.0" step="0.5" value="2.0" oninput="liveUpdate()">
                     <div class="type-block">
                         <div class="type-header">Typography</div>
-                        <label>Show Numbers <input type="checkbox" id="txt_on_r3" onchange="requestGenerate()"></label>
-                        <label>Font</label>
-                        <select id="font_r3" onchange="requestGenerate()">
-                            <option value="Cinzel" class="opt-cinzel">Cinzel</option>
-                            <option value="Bodoni Moda" class="opt-bodoni">Bodoni</option>
-                            <option value="Philosopher" class="opt-philo">Philosopher</option>
-                            <option value="Italiana" class="opt-italiana">Italiana</option>
-                            <option value="Julius Sans One" class="opt-julius">Julius</option>
-                            <option value="Montserrat" class="opt-mont">Montserrat</option>
-                            <option value="Pinyon Script" class="opt-pinyon">Pinyon</option>
-                            <option value="Great Vibes" class="opt-vibes">Great Vibes</option>
-                        </select>
-                        <label>Size <span id="val_ts_r3">6</span></label><input type="range" id="ts_r3" min="4" max="20" value="6" oninput="liveUpdate()">
-                        <label>X-Nudge <span id="val_tx_r3">0</span></label><input type="range" id="tx_r3" min="-10" max="10" step="1" value="0" oninput="liveUpdate()">
-                        <label>Y-Nudge <span id="val_ty_r3">0</span></label><input type="range" id="ty_r3" min="-10" max="10" step="1" value="0" oninput="liveUpdate()">
+                        <label>Show <input type="checkbox" id="txt_on_r3" onchange="requestGenerate()"></label>
+                        <select id="font_r3" onchange="requestGenerate()"><option value="Cinzel">Cinzel</option><option value="Bodoni Moda">Bodoni</option><option value="Philosopher">Philosopher</option><option value="Italiana">Italiana</option><option value="Julius Sans One">Julius</option><option value="Montserrat">Montserrat</option><option value="Pinyon Script">Pinyon</option><option value="Great Vibes">Great Vibes</option></select>
+                        <label>Size <input type="number" id="val_ts_r3" value="6" oninput="updateFromNum('ts_r3')"></label><input type="range" id="ts_r3" min="4" max="20" value="6" oninput="liveUpdate()">
+                        <label>X <input type="number" id="val_tx_r3" value="0" oninput="updateFromNum('tx_r3')"></label><input type="range" id="tx_r3" min="-10" max="10" step="1" value="0" oninput="liveUpdate()">
+                        <label>Y <input type="number" id="val_ty_r3" value="0" oninput="updateFromNum('ty_r3')"></label><input type="range" id="ty_r3" min="-10" max="10" step="1" value="0" oninput="liveUpdate()">
                     </div>
                 </div>
             </div>
         </div>
+    </aside>
 
-        <div class="actions">
-            <button class="btn-gen" onclick="requestGenerate()">Regenerate</button>
-            <button class="btn-dl" onclick="downloadSVG()">Download SVG</button>
+    <div id="bottom-bar">
+        <div class="preset-wrapper">
+            <input type="text" id="preset_name" placeholder="Preset Name">
+            <button class="btn btn-save" onclick="savePreset()">Save</button>
+            <select id="preset_list"><option>Select Preset...</option></select>
+            <button class="btn btn-load" onclick="loadPreset()">Load</button>
+            <button class="btn btn-del" onclick="deletePreset()">X</button>
+        </div>
+        <div style="display:flex; align-items: center; gap:10px;">
+            <div id="font-status"><div class="status-dot" id="status-dot"></div> <span id="status-text">Loading Fonts...</span></div>
+            <button class="btn btn-gen" onclick="requestGenerate()">Regenerate</button>
+            <button class="btn btn-dl" onclick="downloadSVG()">Download SVG</button>
         </div>
     </div>
 
@@ -448,10 +476,12 @@
         'dam_scale','dam_turb','dam_ang', 
         'hc_base', 'hc_inner', 'hc_outer', 'hc_shape', 'hc_force',
         'kal_segs','kal_zoom','kal_comp',
-        'topo_scale','topo_warp'
+        'topo_scale','topo_warp',
+        'pat_radius'
     ];
     ringIds.forEach(rid => {
         ALL_IDS.push('on_'+rid, 'pat_'+rid, 'c_'+rid, 'rot_'+rid, 'd_'+rid, 's_'+rid, 'z_'+rid, 'f_'+rid, 'sm_'+rid);
+        ALL_IDS.push('spin_'+rid); 
         ALL_IDS.push('txt_on_'+rid, 'font_'+rid, 'ts_'+rid, 'tx_'+rid, 'ty_'+rid);
     });
 
@@ -515,9 +545,9 @@
         document.getElementById('preset_list').value = "";
     }
 
-    // Topo Reseed
-    function reseedTopo() {
-        Perlin.init(); // New permutation table
+    // SHARED NOISE RESEED
+    function reseedNoise() {
+        Perlin.init(); 
         requestGenerate();
     }
 
@@ -543,6 +573,15 @@
         debounceTimer = setTimeout(generate, 50); 
     }
 
+    function updateFromNum(id) {
+        const numVal = document.getElementById('val_' + id).value;
+        const slider = document.getElementById(id);
+        if(slider) {
+            slider.value = numVal;
+            liveUpdate();
+        }
+    }
+
     function requestGenerate() { generate(); }
 
     function toggle(id) {
@@ -556,12 +595,10 @@
         const mode = document.getElementById('phys_mode').value;
         const ringsDiv = document.getElementById('rings_wrapper');
         
-        // Hide all groups
         ['grp_center','grp_dipole','grp_damascus','grp_honeycomb','grp_kaleidoscope','grp_topo'].forEach(g => {
             document.getElementById(g).classList.remove('active');
         });
         
-        // Show active
         if(mode === 'center') document.getElementById('grp_center').classList.add('active');
         else if(mode === 'dipole') document.getElementById('grp_dipole').classList.add('active');
         else if(mode === 'damascus') document.getElementById('grp_damascus').classList.add('active');
@@ -569,7 +606,6 @@
         else if(mode === 'kaleidoscope') document.getElementById('grp_kaleidoscope').classList.add('active');
         else if(mode === 'topo') document.getElementById('grp_topo').classList.add('active');
 
-        // Disable rings if honeycomb
         if (mode === 'honeycomb') ringsDiv.classList.add('rings-disabled');
         else ringsDiv.classList.remove('rings-disabled');
 
@@ -584,31 +620,26 @@
     }
 
     function uiChange() {
-        ['swirl','crepel','cforce','density','length','hc_base','hc_inner','hc_outer','hc_force','kal_segs','kal_zoom','kal_comp','topo_scale','topo_warp'].forEach(id => {
+        ['swirl','crepel','cforce','density','length','hc_base','hc_inner','hc_outer','hc_force','kal_segs','kal_zoom','kal_comp','topo_scale','topo_warp','pat_radius'].forEach(id => {
             const el = document.getElementById(id);
-            if(el) document.getElementById('val_'+id).innerText = el.value;
+            if(el) document.getElementById('val_'+id).value = el.value;
         });
         
-        // Poles
         ['p1','p2'].forEach(p => {
-            document.getElementById(`val_${p}_ang`).innerText = document.getElementById(`${p}_ang`).value + '°';
-            document.getElementById(`val_${p}_dist`).innerText = document.getElementById(`${p}_dist`).value;
-            document.getElementById(`val_${p}_force`).innerText = document.getElementById(`${p}_force`).value;
+            document.getElementById(`val_${p}_ang`).value = document.getElementById(`${p}_ang`).value;
+            document.getElementById(`val_${p}_dist`).value = document.getElementById(`${p}_dist`).value;
+            document.getElementById(`val_${p}_force`).value = document.getElementById(`${p}_force`).value;
         });
 
-        // Damascus
-        document.getElementById('val_dam_scale').innerText = document.getElementById('dam_scale').value;
-        document.getElementById('val_dam_turb').innerText = document.getElementById('dam_turb').value;
-        document.getElementById('val_dam_ang').innerText = document.getElementById('dam_ang').value + '°';
+        document.getElementById('val_dam_scale').value = document.getElementById('dam_scale').value;
+        document.getElementById('val_dam_turb').value = document.getElementById('dam_turb').value;
+        document.getElementById('val_dam_ang').value = document.getElementById('dam_ang').value;
 
-        // Rings
         ringIds.forEach(id => {
-            ['c','rot','d','z','f','sm','ts','tx','ty'].forEach(k => {
+            ['c','rot','d','z','f','spin','sm','ts','tx','ty'].forEach(k => {
                 const el = document.getElementById(k+'_'+id);
                 if(el) {
-                    let v = el.value;
-                    if(k==='rot') v += '°';
-                    document.getElementById('val_'+k+'_'+id).innerText = v;
+                    document.getElementById('val_'+k+'_'+id).value = el.value;
                 }
             });
         });
@@ -654,7 +685,6 @@
         obstacles = [];
         const mode = document.getElementById('phys_mode').value;
 
-        // HONEYCOMB GENERATION
         if (mode === 'honeycomb') {
             const hBase = parseInt(document.getElementById('hc_base').value);
             const hInner = parseFloat(document.getElementById('hc_inner').value);
@@ -678,7 +708,7 @@
                         obstacles.push({
                             x: xx, y: yy, angle: 0, type: hShape,
                             w: currentSize/2, h: currentSize/2,
-                            force: hForce, smooth: 3.0, r: currentSize/2
+                            force: hForce, spin: 0, smooth: 3.0, r: currentSize/2
                         });
                     }
                 }
@@ -686,7 +716,6 @@
             return;
         }
 
-        // RING GENERATION
         ringIds.forEach(rid => {
             const checkbox = document.getElementById('on_'+rid);
             if(!checkbox || !checkbox.checked) return;
@@ -695,6 +724,7 @@
             const size = parseInt(document.getElementById('z_'+rid).value);
             const shape = document.getElementById('s_'+rid).value;
             const force = parseFloat(document.getElementById('f_'+rid).value);
+            const spin = parseFloat(document.getElementById('spin_'+rid).value); 
             const smooth = parseFloat(document.getElementById('sm_'+rid).value);
             const rotOffset = parseInt(document.getElementById('rot_'+rid).value) * (Math.PI / 180);
             const hasText = document.getElementById('txt_on_'+rid).checked;
@@ -725,7 +755,7 @@
                 const ang = (item.i / item.total) * Math.PI * 2 - (Math.PI/2) + rotOffset;
                 obstacles.push({
                     x: cx + Math.cos(ang)*dist, y: cy + Math.sin(ang)*dist, angle: ang + Math.PI/2,
-                    type: shape, w: w, h: h, force: force, smooth: smooth, r: Math.max(w, h),
+                    type: shape, w: w, h: h, force: force, spin: spin, smooth: smooth, r: Math.max(w, h),
                     text: hasText, textVal: item.label, textSize: textSize, font: font, tx: tx, ty: ty
                 });
             });
@@ -744,7 +774,7 @@
 
         const mode = document.getElementById('phys_mode').value;
 
-        // MODE PHYSICS
+        // --- 1. CALCULATE BASE FIELD ---
         if (mode === 'center') {
             const c_rad = parseInt(document.getElementById('crepel').value);
             const c_force = parseFloat(document.getElementById('cforce').value);
@@ -782,28 +812,41 @@
             const kZoom = parseFloat(document.getElementById('kal_zoom').value);
             const kComp = parseFloat(document.getElementById('kal_comp').value);
             
+            // Polar conversion
             let dx = x - cx; let dy = y - cy;
             let r = Math.sqrt(dx*dx + dy*dy);
             let theta = Math.atan2(dy, dx);
             if (theta < 0) theta += Math.PI * 2;
             
+            // Slices
             const slice = (Math.PI * 2) / kSegs;
             let segIdx = Math.floor(theta / slice);
             let localTheta = theta % slice;
             if (localTheta > slice/2) localTheta = slice - localTheta;
             
+            // Map back to space
             let sx = cx + Math.cos(localTheta) * r;
             let sy = cy + Math.sin(localTheta) * r;
             let n = Perlin.noise(sx * kZoom, sy * kZoom, 0);
             let rot = n * kComp;
             
-            let baseVx = Math.cos(localTheta), baseVy = Math.sin(localTheta);
+            // FIX: Add global swirl to the local rotation logic
+            // We perturb the 'localTheta' by the swirl amount before calculating base vectors
+            let swirlOffset = (swirl * r / 300);
+            
+            // Base flow is radial relative to the slice
+            let baseVx = Math.cos(localTheta + swirlOffset);
+            let baseVy = Math.sin(localTheta + swirlOffset);
+            
+            // Perturb by noise
             let lvx = baseVx * Math.cos(rot) - baseVy * Math.sin(rot);
             let lvy = baseVx * Math.sin(rot) + baseVy * Math.cos(rot);
             
+            // Rotate result back to correct segment
             let finalRot = segIdx * slice;
             vx = lvx * Math.cos(finalRot) - lvy * Math.sin(finalRot);
             vy = lvx * Math.sin(finalRot) + lvy * Math.cos(finalRot);
+
         } else if (mode === 'topo') {
             const tScale = parseFloat(document.getElementById('topo_scale').value);
             const tWarp = parseFloat(document.getElementById('topo_warp').value);
@@ -826,25 +869,48 @@
             vx = -dy; vy = dx;
         }
 
-        // OBSTACLES
+        // --- 2. ACCUMULATE OBSTACLE INFLUENCE ---
+        let total_dx = 0;
+        let total_dy = 0;
+
         obstacles.forEach((o, i) => {
             let dx = x - o.x;
             let dy = y - o.y;
             let d = Math.sqrt(dx*dx + dy*dy);
             let fieldRadius = Math.max(o.w, o.h) * (0.8 + o.smooth); 
+            
             if(d < fieldRadius && d > 0) {
                 let nx = dx / d, ny = dy / d;
+                
+                // Use current BASE vx/vy for dot product to ensure symmetry
                 let dot = vx * nx + vy * ny;
+                
                 let proximity = (fieldRadius - d) / fieldRadius;
                 proximity = proximity * proximity * proximity; 
+                
+                let repX = 0, repY = 0;
                 if (dot < 0) {
-                    vx -= nx * dot * proximity * 1.5;
-                    vy -= ny * dot * proximity * 1.5;
+                    repX -= nx * dot * proximity * 1.5;
+                    repY -= ny * dot * proximity * 1.5;
                 }
-                vx += nx * o.force * proximity * 0.5;
-                vy += ny * o.force * proximity * 0.5;
+                repX += nx * o.force * proximity * 0.5;
+                repY += ny * o.force * proximity * 0.5;
+
+                let spinX = 0, spinY = 0;
+                if (o.spin && o.spin !== 0) {
+                    let tx = -ny; 
+                    let ty = nx;
+                    spinX += tx * o.spin * proximity * 2.0;
+                    spinY += ty * o.spin * proximity * 2.0;
+                }
+                
+                total_dx += repX + spinX;
+                total_dy += repY + spinY;
             }
         });
+
+        vx += total_dx;
+        vy += total_dy;
 
         let l = Math.sqrt(vx*vx + vy*vy);
         if(l>0) { vx/=l; vy/=l; }
@@ -852,6 +918,12 @@
     }
 
     function generate() {
+        // High DPI Support
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = 600 * dpr;
+        canvas.height = 600 * dpr;
+        ctx.scale(dpr, dpr);
+
         document.fonts.ready.then(() => {
             generateObstacles();
             ctx.fillStyle = "#fff";
@@ -863,6 +935,7 @@
             const dens = parseInt(document.getElementById('density').value);
             const len = parseInt(document.getElementById('length').value);
             const mode = document.getElementById('phys_mode').value;
+            const patRadius = parseInt(document.getElementById('pat_radius').value); 
             
             let is_gravity = false;
             let c_rad = 0;
@@ -889,11 +962,9 @@
             ctx.lineWidth = 0.5;
             
             for(let i=0; i<dens; i++) {
-                let r = Math.sqrt(Math.random()) * (width/2 - 10);
-                if(is_gravity && Math.random() > 0.3) r = (width/2 - 20) - (Math.random() * 100);
-                if(mode === 'damascus') r = Math.random() * (width/2 - 10);
-                if(mode === 'kaleidoscope') r = Math.random() * (width/2 - 10);
-                if(mode === 'topo') r = Math.random() * (width/2 - 10);
+                let r = Math.sqrt(Math.random()) * patRadius;
+                if(is_gravity && Math.random() > 0.3) r = (patRadius - 10) - (Math.random() * 100);
+                if(mode === 'damascus' || mode === 'kaleidoscope' || mode === 'topo') r = Math.random() * patRadius;
 
                 let th = Math.random() * Math.PI * 2;
                 let px = cx + Math.cos(th)*r;
@@ -919,7 +990,9 @@
                     for(let o of obstacles) {
                         if(Math.sqrt((px-o.x)**2 + (py-o.y)**2) < Math.min(o.w, o.h)*0.95) crash=true;
                     }
-                    if(mode === 'center' && is_gravity && Math.sqrt((px-cx)**2 + (py-cy)**2) < 8) crash = true;
+                    if(mode === 'center') {
+                        if (is_gravity && Math.sqrt((px-cx)**2 + (py-cy)**2) < 8) crash = true;
+                    }
                     if(mode === 'dipole') {
                         if (p1f < 0 && Math.sqrt((px-p1x)**2 + (py-p1y)**2) < 10) crash = true;
                         if (p2f < 0 && Math.sqrt((px-p2x)**2 + (py-p2y)**2) < 10) crash = true;
@@ -992,7 +1065,7 @@
         const blob = new Blob([svg], {type:"image/svg+xml"});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href=url; a.download="chronos_v40.svg";
+        a.href=url; a.download="chronos_v48.svg";
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
     }
 
