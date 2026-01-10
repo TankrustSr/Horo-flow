@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chronos Flow v52: Pipeline Fix</title>
+    <title>Chronos Flow v64: Pro Save</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,209 +28,120 @@
                 "bottom bottom bottom";
         }
 
-        /* SIDEBARS */
-        #left-sidebar, #right-sidebar {
-            background: #1e1e1e;
-            padding: 15px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch; 
-        }
+        #left-sidebar, #right-sidebar { background: #1e1e1e; padding: 15px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         #left-sidebar { grid-area: left; border-right: 1px solid #333; }
         #right-sidebar { grid-area: right; border-left: 1px solid #333; }
 
-        /* CENTER */
-        main {
-            grid-area: main;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
+        main { grid-area: main; background: #000; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
 
-        /* BOTTOM BAR */
         #bottom-bar {
-            grid-area: bottom;
-            background: #252525;
-            border-top: 1px solid #333;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 20px;
-            gap: 20px;
-            padding-bottom: calc(15px + env(safe-area-inset-bottom));
-            z-index: 10;
+            grid-area: bottom; background: #252525; border-top: 1px solid #333;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 20px; gap: 20px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 10;
         }
 
-        /* COMPACT TITLE IN SIDEBAR */
-        h1.sidebar-title { 
-            margin: 0 0 15px 0; 
-            color: #fff; 
-            font-weight: 400; 
-            letter-spacing: 2px; 
-            font-family: 'Cinzel', serif; 
-            font-size: 1.2em; 
-            text-align: center;
-            border-bottom: 1px solid #444;
-            padding-bottom: 10px;
-        }
-        
+        h1.sidebar-title { margin: 0 0 15px 0; color: #fff; font-weight: 400; letter-spacing: 2px; font-family: 'Cinzel', serif; font-size: 1.2em; text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; }
         h3 { margin: 0 0 8px 0; color: #fff; font-size: 0.85em; border-bottom: 1px solid #555; padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* CONTROLS */
         label { display: flex; justify-content: space-between; align-items: center; font-size: 0.7em; margin-bottom: 2px; color: #aaa; margin-top: 6px;}
-        
-        input[type=number] {
-            background: #111;
-            border: 1px solid #444;
-            color: #00e5ff;
-            font-family: monospace;
-            width: 55px;
-            padding: 2px 4px;
-            border-radius: 3px;
-            text-align: right;
-            font-size: 0.9em;
-        }
+        input[type=number] { background: #111; border: 1px solid #444; color: #00e5ff; font-family: monospace; width: 55px; padding: 2px 4px; border-radius: 3px; text-align: right; font-size: 0.9em; }
         input[type=number]:focus { outline: 1px solid #00e5ff; border-color: #00e5ff; }
-
         input[type=range] { width: 100%; margin-bottom: 4px; cursor: pointer; accent-color: #00e5ff; height: 4px; display: block;}
         select { width: 100%; margin-bottom: 4px; background: #333; color: #fff; border: 1px solid #555; padding: 3px; border-radius: 4px; font-family: sans-serif; font-size: 0.9em;}
         input[type=checkbox] { accent-color: #00e5ff; width: 14px; height: 14px; cursor: pointer; }
         input[type=text] { padding: 6px; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; font-size: 0.9em;}
 
-        .control-block {
-            background: #2a2a2a;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #444;
-            margin-bottom: 12px;
-        }
-        
+        .control-block { background: #2a2a2a; padding: 12px; border-radius: 6px; border: 1px solid #444; margin-bottom: 12px; }
         .phys-group { display: none; margin-top: 8px; border-top: 1px dashed #555; padding-top: 8px;}
         .phys-group.active { display: block; }
-
-        .type-block {
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px dashed #555;
-            background: rgba(0,0,0,0.2);
-            padding: 8px;
-            border-radius: 4px;
-        }
+        .type-block { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #555; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 4px; }
         .type-header { font-size: 0.7em; color: #888; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; letter-spacing: 1px; }
 
-        .slider-wrapper { transition: opacity 0.2s; }
         .slider-wrapper.disabled { opacity: 0.3; pointer-events: none; }
         .input-disabled { opacity: 0.4; pointer-events: none; }
         .rings-disabled { opacity: 0.2; pointer-events: none; }
 
         .canvas-container {
-            width: 600px; height: 600px;
-            background: #fff;
-            border-radius: 50%;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            overflow: hidden;
-            max-width: 90vw;
-            max-height: 90vw;
+            width: 600px; height: 600px; background: #fff; border-radius: 50%;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5); overflow: hidden;
+            max-width: 90vw; max-height: 90vw; transition: border-radius 0.3s;
         }
         canvas { display: block; width: 100%; height: 100%; }
 
-        /* BUTTONS */
         .preset-wrapper { display: flex; gap: 8px; align-items: center; flex-grow: 1; }
         .preset-wrapper select { margin-bottom: 0; flex-grow: 1; padding: 6px;}
-        .btn { padding: 8px 16px; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; font-size: 0.75em; }
+        .btn { padding: 8px 16px; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; font-size: 0.7em; }
         .btn-gen { background: #00e5ff; color: #000; }
-        .btn-gen:hover { background: #66e0ff; }
         .btn-dl { background: #444; color: #fff; }
-        .btn-dl:hover { background: #555; }
         .btn-save { background: #00d2ff; color: #000; padding: 6px 12px;}
         .btn-load { background: #555; color: #fff; padding: 6px 12px;}
         .btn-del { background: #ff4444; color: #fff; padding: 6px 10px;}
-        .btn-reseed { background: #ff9955; color: #000; width: 100%; margin-top: 8px; padding: 6px; border:none; cursor: pointer; border-radius:4px; font-weight: bold;}
-
-        /* Moved Status to bottom bar */
-        #font-status { 
-            font-size: 0.7em; color: #888; display: flex; align-items: center; gap: 5px; margin-right: 15px;
-        }
+        .btn-json { background: #666; color: #fff; padding: 6px 10px; font-size: 0.6em; }
+        
+        #font-status { font-size: 0.7em; color: #888; display: flex; align-items: center; gap: 5px; margin-right: 15px; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #f00; box-shadow: 0 0 5px #f00; }
         .status-dot.ready { background: #0f0; box-shadow: 0 0 5px #0f0; }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #1a1a1a; }
-        ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
 
         .pole-container { display: flex; flex-direction: column; gap: 10px; }
         .pole-box { background: #252525; padding: 8px; border-radius: 4px; border: 1px solid #444; }
         .pole-title { font-size: 0.7em; color: #ff9900; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; border-bottom: 1px solid #444; padding-bottom: 3px; }
         .pole-title.blue { color: #0099ff; }
         
-        #rings_wrapper {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            transition: opacity 0.3s;
-        }
-        @media (max-width: 1400px) {
-            #rings_wrapper { grid-template-columns: 1fr; }
-        }
-
+        #rings_wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; transition: opacity 0.3s; }
+        @media (max-width: 1400px) { #rings_wrapper { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
     <aside id="left-sidebar">
-        <h1 class="sidebar-title">Chronos Flow v52</h1>
+        <h1 class="sidebar-title">Chronos Flow v64</h1>
 
         <div class="control-block">
             <h3>Global Settings</h3>
+            <label style="color:#fff; font-weight:bold;">Dial Shape</label>
+            <select id="dial_shape" onchange="liveUpdate()">
+                <option value="round" selected>Round</option>
+                <option value="square">Square</option>
+            </select>
             <label style="color:#fff; font-weight:bold;">Physics Mode</label>
             <select id="phys_mode" onchange="togglePhysics()">
                 <option value="center">Single Singularity</option>
                 <option value="dipole">Magnetic Dipole</option>
                 <option value="damascus">Damascus Steel</option>
                 <option value="wave">Ocean Swell</option>
-                <option value="pipeline" selected>Pipeline (Side View)</option>
+                <option value="pipeline">Pipeline (Side View)</option>
+                <option value="interference">Interference (Moiré)</option>
                 <option value="honeycomb">Honeycomb Lattice</option>
                 <option value="kaleidoscope">Kaleidoscope</option>
                 <option value="topo">Topographic (Isobars)</option>
+                <option value="cymatics" selected>Cymatics (Vibration)</option>
             </select>
-            
             <label>Density <input type="number" id="val_density" value="2500" step="100" oninput="updateFromNum('density')"></label>
             <input type="range" id="density" min="500" max="5000" step="100" value="2500" oninput="liveUpdate()">
-            
             <label>Line Length <input type="number" id="val_length" value="100" step="10" oninput="updateFromNum('length')"></label>
             <input type="range" id="length" min="20" max="300" value="100" oninput="liveUpdate()">
-            
             <label>Swirl <input type="number" id="val_swirl" value="0.3" step="0.1" oninput="updateFromNum('swirl')"></label>
             <input type="range" id="swirl" min="-5.0" max="5.0" step="0.1" value="0.3" oninput="liveUpdate()">
-            
             <label style="color:#ffcc00">Pattern Radius <input type="number" id="val_pat_radius" value="300" step="10" oninput="updateFromNum('pat_radius')"></label>
             <input type="range" id="pat_radius" min="200" max="400" step="10" value="300" oninput="liveUpdate()">
         </div>
 
         <div class="control-block">
             <h3>Physics Parameters</h3>
-            
             <div id="grp_center" class="phys-group">
                 <label>Radius <input type="number" id="val_crepel" value="100" oninput="updateFromNum('crepel')"></label>
                 <input type="range" id="crepel" min="0" max="350" value="100" oninput="liveUpdate()">
-                
                 <label style="color:#00e5ff">Force <input type="number" id="val_cforce" value="-3.0" step="0.1" oninput="updateFromNum('cforce')"></label>
                 <input type="range" id="cforce" min="-5.0" max="5.0" step="0.1" value="-3.0" oninput="liveUpdate()">
             </div>
-
             <div id="grp_dipole" class="phys-group">
                 <div class="pole-container">
                     <div class="pole-box">
                         <div class="pole-title">Pole 1 (Orange)</div>
                         <label>Angle <input type="number" id="val_p1_ang" value="270" oninput="updateFromNum('p1_ang')"></label>
                         <input type="range" id="p1_ang" min="0" max="360" value="270" oninput="liveUpdate()">
-                        
                         <label>Distance <input type="number" id="val_p1_dist" value="250" oninput="updateFromNum('p1_dist')"></label>
                         <input type="range" id="p1_dist" min="0" max="300" value="250" oninput="liveUpdate()">
-                        
                         <label>Force <input type="number" id="val_p1_force" value="2.5" step="0.1" oninput="updateFromNum('p1_force')"></label>
                         <input type="range" id="p1_force" min="-5.0" max="5.0" step="0.1" value="2.5" oninput="liveUpdate()">
                     </div>
@@ -238,106 +149,94 @@
                         <div class="pole-title blue">Pole 2 (Blue)</div>
                         <label>Angle <input type="number" id="val_p2_ang" value="90" oninput="updateFromNum('p2_ang')"></label>
                         <input type="range" id="p2_ang" min="0" max="360" value="90" oninput="liveUpdate()">
-                        
                         <label>Distance <input type="number" id="val_p2_dist" value="250" oninput="updateFromNum('p2_dist')"></label>
                         <input type="range" id="p2_dist" min="0" max="300" value="250" oninput="liveUpdate()">
-                        
                         <label>Force <input type="number" id="val_p2_force" value="-2.5" step="0.1" oninput="updateFromNum('p2_force')"></label>
                         <input type="range" id="p2_force" min="-5.0" max="5.0" step="0.1" value="-2.5" oninput="liveUpdate()">
                     </div>
                 </div>
             </div>
-
             <div id="grp_damascus" class="phys-group">
                 <label style="color:#00ff88">Scale <input type="number" id="val_dam_scale" value="0.010" step="0.001" oninput="updateFromNum('dam_scale')"></label>
                 <input type="range" id="dam_scale" min="0.001" max="0.050" step="0.001" value="0.010" oninput="liveUpdate()">
-                
                 <label style="color:#00ff88">Distortion <input type="number" id="val_dam_turb" value="3.0" step="0.1" oninput="updateFromNum('dam_turb')"></label>
                 <input type="range" id="dam_turb" min="0.0" max="10.0" step="0.1" value="3.0" oninput="liveUpdate()">
-                
                 <label style="color:#00ff88">Direction <input type="number" id="val_dam_ang" value="45" oninput="updateFromNum('dam_ang')"></label>
                 <input type="range" id="dam_ang" min="0" max="360" value="45" oninput="liveUpdate()">
                 <button class="btn-reseed" onclick="reseedNoise()">Reseed Pattern</button>
             </div>
-
+            <div id="grp_interference" class="phys-group active">
+                <label style="color:#00ffcc">Ripple Freq <input type="number" id="val_int_freq" value="0.08" step="0.01" oninput="updateFromNum('int_freq')"></label>
+                <input type="range" id="int_freq" min="0.01" max="0.30" step="0.01" value="0.08" oninput="liveUpdate()">
+                <label style="color:#00ffcc">Source Sep <input type="number" id="val_int_sep" value="120" oninput="updateFromNum('int_sep')"></label>
+                <input type="range" id="int_sep" min="0" max="300" value="120" oninput="liveUpdate()">
+                <label style="color:#00ffcc">Axis Rotation <input type="number" id="val_int_rot" value="0" oninput="updateFromNum('int_rot')"></label>
+                <input type="range" id="int_rot" min="0" max="360" value="0" oninput="liveUpdate()">
+            </div>
             <div id="grp_wave" class="phys-group">
                 <label style="color:#00ccff">Swell Angle <input type="number" id="val_wav_ang" value="135" oninput="updateFromNum('wav_ang')"></label>
                 <input type="range" id="wav_ang" min="0" max="360" value="135" oninput="liveUpdate()">
-                
                 <label style="color:#00ccff">Wavelength <input type="number" id="val_wav_len" value="50" oninput="updateFromNum('wav_len')"></label>
                 <input type="range" id="wav_len" min="10" max="150" value="50" oninput="liveUpdate()">
-                
                 <label style="color:#00ccff">Wave Height <input type="number" id="val_wav_amp" value="1.0" step="0.1" oninput="updateFromNum('wav_amp')"></label>
                 <input type="range" id="wav_amp" min="0.0" max="5.0" step="0.1" value="1.0" oninput="liveUpdate()">
-                
                 <label style="color:#00ccff">Choppiness <input type="number" id="val_wav_chop" value="0.5" step="0.1" oninput="updateFromNum('wav_chop')"></label>
                 <input type="range" id="wav_chop" min="0.0" max="3.0" step="0.1" value="0.5" oninput="liveUpdate()">
-                
                 <button class="btn-reseed" onclick="reseedNoise()">Reseed Waves</button>
             </div>
-            
-             <div id="grp_pipeline" class="phys-group active">
+            <div id="grp_pipeline" class="phys-group">
                 <label style="color:#00ccff">Barrel Radius <input type="number" id="val_pipe_rad" value="100" oninput="updateFromNum('pipe_rad')"></label>
                 <input type="range" id="pipe_rad" min="40" max="250" value="100" oninput="liveUpdate()">
-
                 <label style="color:#00ccff">Eye Position X <input type="number" id="val_pipe_x" value="0" oninput="updateFromNum('pipe_x')"></label>
                 <input type="range" id="pipe_x" min="-200" max="200" value="0" oninput="liveUpdate()">
-
                 <label style="color:#00ccff">Curl Intensity <input type="number" id="val_pipe_curl" value="1.0" step="0.1" oninput="updateFromNum('pipe_curl')"></label>
                 <input type="range" id="pipe_curl" min="0.1" max="4.0" step="0.1" value="1.0" oninput="liveUpdate()">
-                
                 <label style="color:#00ccff">Lip Heaviness <input type="number" id="val_pipe_lip" value="1.0" step="0.1" oninput="updateFromNum('pipe_lip')"></label>
                 <input type="range" id="pipe_lip" min="0.0" max="3.0" step="0.1" value="1.0" oninput="liveUpdate()">
             </div>
-
             <div id="grp_honeycomb" class="phys-group">
                 <label style="color:#ffd700">Base Spacing <input type="number" id="val_hc_base" value="30" oninput="updateFromNum('hc_base')"></label>
                 <input type="range" id="hc_base" min="20" max="80" value="30" oninput="liveUpdate()">
-                
                 <label style="color:#ffd700">Inner Size <input type="number" id="val_hc_inner" value="15" oninput="updateFromNum('hc_inner')"></label>
                 <input type="range" id="hc_inner" min="2" max="60" value="15" oninput="liveUpdate()">
-                
                 <label style="color:#ffd700">Outer Size <input type="number" id="val_hc_outer" value="30" oninput="updateFromNum('hc_outer')"></label>
                 <input type="range" id="hc_outer" min="2" max="60" value="30" oninput="liveUpdate()">
-                
                 <label style="color:#ffd700">Grid Shape</label>
                 <select id="hc_shape" onchange="liveUpdate()">
-                    <option value="hexagon" selected>Hexagon</option>
-                    <option value="round">Round</option>
-                    <option value="square">Square</option>
-                    <option value="diamond">Diamond</option>
+                    <option value="hexagon" selected>Hexagon</option><option value="round">Round</option><option value="square">Square</option><option value="diamond">Diamond</option>
                 </select>
-                
                 <label style="color:#ffd700">Obstacle Force <input type="number" id="val_hc_force" value="3.0" step="0.1" oninput="updateFromNum('hc_force')"></label>
                 <input type="range" id="hc_force" min="0.5" max="5.0" step="0.1" value="3.0" oninput="liveUpdate()">
             </div>
-
             <div id="grp_kaleidoscope" class="phys-group">
                 <label style="color:#ff00ff">Segments <input type="number" id="val_kal_segs" value="6" step="1" oninput="updateFromNum('kal_segs')"></label>
                 <input type="range" id="kal_segs" min="3" max="24" step="1" value="6" oninput="liveUpdate()">
-                
                 <label style="color:#ff00ff">Zoom <input type="number" id="val_kal_zoom" value="0.015" step="0.001" oninput="updateFromNum('kal_zoom')"></label>
                 <input type="range" id="kal_zoom" min="0.005" max="0.050" step="0.001" value="0.015" oninput="liveUpdate()">
-                
                 <label style="color:#ff00ff">Complexity <input type="number" id="val_kal_comp" value="2.0" step="0.1" oninput="updateFromNum('kal_comp')"></label>
                 <input type="range" id="kal_comp" min="0.0" max="10.0" step="0.1" value="2.0" oninput="liveUpdate()">
                 <button class="btn-reseed" onclick="reseedNoise()">Reseed Pattern</button>
             </div>
-
             <div id="grp_topo" class="phys-group">
                 <label style="color:#ff9955">Scale <input type="number" id="val_topo_scale" value="0.010" step="0.001" oninput="updateFromNum('topo_scale')"></label>
                 <input type="range" id="topo_scale" min="0.002" max="0.030" step="0.001" value="0.010" oninput="liveUpdate()">
-                
                 <label style="color:#ff9955">Ruggedness <input type="number" id="val_topo_warp" value="1.0" step="0.1" oninput="updateFromNum('topo_warp')"></label>
                 <input type="range" id="topo_warp" min="0.0" max="5.0" step="0.1" value="1.0" oninput="liveUpdate()">
-                
                 <button class="btn-reseed" onclick="reseedTopo()">Reseed Terrain</button>
+            </div>
+            <div id="grp_cymatics" class="phys-group active">
+                <label style="color:#ff55ff">Frequency (N) <input type="number" id="val_cym_n" value="5" step="0.1" oninput="updateFromNum('cym_n')"></label>
+                <input type="range" id="cym_n" min="1" max="20" step="0.1" value="5" oninput="liveUpdate()">
+                <label style="color:#ff55ff">Resonance (M) <input type="number" id="val_cym_m" value="3" step="0.1" oninput="updateFromNum('cym_m')"></label>
+                <input type="range" id="cym_m" min="1" max="20" step="0.1" value="3" oninput="liveUpdate()">
+                <label style="color:#ff55ff">Plate Tension <input type="number" id="val_cym_k" value="0.03" step="0.001" oninput="updateFromNum('cym_k')"></label>
+                <input type="range" id="cym_k" min="0.01" max="0.1" step="0.001" value="0.03" oninput="liveUpdate()">
             </div>
         </div>
     </aside>
 
     <main>
-        <div class="canvas-container">
+        <div id="main_canvas_container" class="canvas-container">
             <canvas id="canvas" width="600" height="600"></canvas>
         </div>
     </main>
@@ -349,51 +248,29 @@
                 <div id="wrap_r1" class="slider-wrapper">
                     <label>Mode</label>
                     <select id="pat_r1" onchange="toggleCount('r1')"><option value="custom">Custom</option><option value="12h">12-Hour</option><option value="no_card" selected>No Card.</option><option value="card_only">Card. Only</option></select>
-                    
-                    <div id="cnt_box_r1" class="input-disabled">
-                        <label>Count <input type="number" id="val_c_r1" value="12" oninput="updateFromNum('c_r1')"></label>
-                        <input type="range" id="c_r1" min="1" max="60" value="12" oninput="liveUpdate()">
-                    </div>
-                    
-                    <label>Rot <input type="number" id="val_rot_r1" value="0" oninput="updateFromNum('rot_r1')"></label>
-                    <input type="range" id="rot_r1" min="0" max="360" value="0" oninput="liveUpdate()">
-                    
-                    <label>Dist <input type="number" id="val_d_r1" value="160" oninput="updateFromNum('d_r1')"></label>
-                    <input type="range" id="d_r1" min="50" max="290" value="160" oninput="liveUpdate()">
-                    
+                    <div id="cnt_box_r1" class="input-disabled"><label>Count <input type="number" id="val_c_r1" value="12" oninput="updateFromNum('c_r1')"></label><input type="range" id="c_r1" min="1" max="60" value="12" oninput="liveUpdate()"></div>
+                    <label>Rot <input type="number" id="val_rot_r1" value="0" oninput="updateFromNum('rot_r1')"></label><input type="range" id="rot_r1" min="0" max="360" value="0" oninput="liveUpdate()">
+                    <label>Dist <input type="number" id="val_d_r1" value="160" oninput="updateFromNum('d_r1')"></label><input type="range" id="d_r1" min="50" max="290" value="160" oninput="liveUpdate()">
                     <label>Shape</label><select id="s_r1" onchange="requestGenerate()"><option value="round">Round</option><option value="square">Square</option><option value="baton">Baton</option></select>
-                    
-                    <label>Size <input type="number" id="val_z_r1" value="18" oninput="updateFromNum('z_r1')"></label>
-                    <input type="range" id="z_r1" min="4" max="40" value="18" oninput="liveUpdate()">
-                    
-                    <label>Force <input type="number" id="val_f_r1" value="1.5" step="0.1" oninput="updateFromNum('f_r1')"></label>
-                    <input type="range" id="f_r1" min="0.5" max="5.0" step="0.1" value="1.5" oninput="liveUpdate()">
-                    
-                    <label style="color:#00e5ff">Spin <input type="number" id="val_spin_r1" value="0.0" step="0.1" oninput="updateFromNum('spin_r1')"></label>
-                    <input type="range" id="spin_r1" min="-5.0" max="5.0" step="0.1" value="0.0" oninput="liveUpdate()">
-                    
-                    <label>Grade <input type="number" id="val_sm_r1" value="3.0" step="0.5" oninput="updateFromNum('sm_r1')"></label>
-                    <input type="range" id="sm_r1" min="1.0" max="25.0" step="0.5" value="3.0" oninput="liveUpdate()">
-                    
+                    <label>Size <input type="number" id="val_z_r1" value="18" oninput="updateFromNum('z_r1')"></label><input type="range" id="z_r1" min="4" max="40" value="18" oninput="liveUpdate()">
+                    <label>Force <input type="number" id="val_f_r1" value="1.5" step="0.1" oninput="updateFromNum('f_r1')"></label><input type="range" id="f_r1" min="0.5" max="5.0" step="0.1" value="1.5" oninput="liveUpdate()">
+                    <label style="color:#00e5ff">Spin <input type="number" id="val_spin_r1" value="0.0" step="0.1" oninput="updateFromNum('spin_r1')"></label><input type="range" id="spin_r1" min="-5.0" max="5.0" step="0.1" value="0.0" oninput="liveUpdate()">
+                    <label>Grade <input type="number" id="val_sm_r1" value="3.0" step="0.5" oninput="updateFromNum('sm_r1')"></label><input type="range" id="sm_r1" min="1.0" max="25.0" step="0.5" value="3.0" oninput="liveUpdate()">
                     <div class="type-block">
                         <div class="type-header">Typography</div>
                         <label>Show <input type="checkbox" id="txt_on_r1" checked onchange="requestGenerate()"></label>
                         <select id="font_r1" onchange="requestGenerate()"><option value="Cinzel">Cinzel</option><option value="Bodoni Moda">Bodoni</option><option value="Philosopher">Philosopher</option><option value="Italiana">Italiana</option><option value="Julius Sans One">Julius</option><option value="Montserrat">Montserrat</option><option value="Pinyon Script">Pinyon</option><option value="Great Vibes">Great Vibes</option></select>
-                        <label>Size <input type="number" id="val_ts_r1" value="14" oninput="updateFromNum('ts_r1')"></label>
-                        <input type="range" id="ts_r1" min="8" max="40" value="14" oninput="liveUpdate()">
-                        <label>X <input type="number" id="val_tx_r1" value="0" oninput="updateFromNum('tx_r1')"></label>
-                        <input type="range" id="tx_r1" min="-10" max="10" step="1" value="0" oninput="liveUpdate()">
-                        <label>Y <input type="number" id="val_ty_r1" value="0" oninput="updateFromNum('ty_r1')"></label>
-                        <input type="range" id="ty_r1" min="-10" max="10" step="1" value="0" oninput="liveUpdate()">
+                        <label>Size <input type="number" id="val_ts_r1" value="14" oninput="updateFromNum('ts_r1')"></label><input type="range" id="ts_r1" min="8" max="40" value="14" oninput="liveUpdate()">
+                        <label>X <input type="number" id="val_tx_r1" value="0" oninput="updateFromNum('tx_r1')"></label><input type="range" id="tx_r1" min="-10" max="10" step="1" value="0" oninput="liveUpdate()">
+                        <label>Y <input type="number" id="val_ty_r1" value="0" oninput="updateFromNum('ty_r1')"></label><input type="range" id="ty_r1" min="-10" max="10" step="1" value="0" oninput="liveUpdate()">
                     </div>
                 </div>
             </div>
-
             <div class="control-block ring-block">
                 <h3>Middle Ring <input type="checkbox" id="on_r2" checked onchange="toggle('r2')"></h3>
                 <div id="wrap_r2" class="slider-wrapper">
                     <label>Mode</label>
-                    <select id="pat_r2" onchange="toggleCount('r2')"><option value="custom">Custom</option><option value="12h">12-Hour</option><option value="no_card">No Card.</option><option value="card_only" selected>Card. Only</option></select>
+                    <select id="pat_r2" onchange="toggleCount('r2')"><option value="custom">Custom</option><option value="12h">12-Hour</option><option value="no_card">No Card.</option><option value="card_only">Card. Only</option></select>
                     <div id="cnt_box_r2" class="input-disabled"><label>Count <input type="number" id="val_c_r2" value="4" oninput="updateFromNum('c_r2')"></label><input type="range" id="c_r2" min="1" max="60" value="4" oninput="liveUpdate()"></div>
                     <label>Rot <input type="number" id="val_rot_r2" value="0" oninput="updateFromNum('rot_r2')"></label><input type="range" id="rot_r2" min="0" max="360" value="0" oninput="liveUpdate()">
                     <label>Dist <input type="number" id="val_d_r2" value="220" oninput="updateFromNum('d_r2')"></label><input type="range" id="d_r2" min="50" max="290" value="220" oninput="liveUpdate()">
@@ -412,7 +289,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="control-block ring-block">
                 <h3>Outer Ring <input type="checkbox" id="on_r3" checked onchange="toggle('r3')"></h3>
                 <div id="wrap_r3" class="slider-wrapper">
@@ -446,30 +322,24 @@
             <select id="preset_list"><option>Select Preset...</option></select>
             <button class="btn btn-load" onclick="loadPreset()">Load</button>
             <button class="btn btn-del" onclick="deletePreset()">X</button>
+            <button class="btn btn-json" onclick="exportJSON()">Exp</button>
+            <button class="btn btn-json" onclick="importJSON()">Imp</button>
+            <input type="file" id="import_file" style="display:none" onchange="handleFile(this)">
         </div>
         <div style="display:flex; align-items: center; gap:10px;">
-            <div id="font-status"><div class="status-dot" id="status-dot"></div> <span id="status-text">Loading Fonts...</span></div>
+            <div id="font-status"><div class="status-dot" id="status-dot"></div> <span id="status-text">Loading...</span></div>
             <button class="btn btn-gen" onclick="requestGenerate()">Regenerate</button>
             <button class="btn btn-dl" onclick="downloadSVG()">Download SVG</button>
         </div>
     </div>
 
 <script>
-    window.onerror = function(msg, url, line) { alert("Script Error: " + msg); return false; };
-
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const width = 600;
-    const height = 600;
-    const cx = 300;
-    const cy = 300;
-    const ringIds = ['r1', 'r2', 'r3'];
+    const width = 600, height = 600, cx = 300, cy = 300, ringIds = ['r1', 'r2', 'r3'];
     
     // Perlin Noise
     const Perlin = {
-        p: [],
+        p: new Uint8Array(512),
         init: function() {
-            this.p = new Uint8Array(512);
             const p = new Uint8Array(256);
             for(let i=0; i<256; i++) p[i] = i;
             for(let i=255; i>0; i--){ const n = Math.floor(Math.random() * (i+1)); [p[i], p[n]] = [p[n], p[i]]; }
@@ -478,16 +348,14 @@
         fade: function(t) { return t * t * t * (t * (t * 6 - 15) + 10); },
         lerp: function(t, a, b) { return a + t * (b - a); },
         grad: function(hash, x, y, z) {
-            const h = hash & 15; const u = h<8 ? x : y; const v = h<4 ? y : h===12||h===14 ? x : z;
+            const h = hash & 15, u = h<8 ? x : y, v = h<4 ? y : h===12||h===14 ? x : z;
             return ((h&1) === 0 ? u : -u) + ((h&2) === 0 ? v : -v);
         },
         noise: function(x, y, z) {
-            if(this.p.length === 0) this.init();
-            const X = Math.floor(x) & 255; const Y = Math.floor(y) & 255; const Z = Math.floor(z) & 255;
+            const X = Math.floor(x) & 255, Y = Math.floor(y) & 255, Z = Math.floor(z) & 255;
             x -= Math.floor(x); y -= Math.floor(y); z -= Math.floor(z);
-            const u = this.fade(x); const v = this.fade(y); const w = this.fade(z);
-            const A = this.p[X]+Y, AA = this.p[A]+Z, AB = this.p[A+1]+Z;
-            const B = this.p[X+1]+Y, BA = this.p[B]+Z, BB = this.p[B+1]+Z;
+            const u = this.fade(x), v = this.fade(y), w = this.fade(z);
+            const A = this.p[X]+Y, AA = this.p[A]+Z, AB = this.p[A+1]+Z, B = this.p[X+1]+Y, BA = this.p[B]+Z, BB = this.p[B+1]+Z;
             return this.lerp(w, this.lerp(v, this.lerp(u, this.grad(this.p[AA], x, y, z), this.grad(this.p[BA], x-1, y, z)),
                 this.lerp(u, this.grad(this.p[AB], x, y-1, z), this.grad(this.p[BB], x-1, y-1, z))),
                 this.lerp(v, this.lerp(u, this.grad(this.p[AA+1], x, y, z-1), this.grad(this.p[BA+1], x-1, y, z-1)),
@@ -500,231 +368,125 @@
     let paths = [];
     let debounceTimer;
 
-    // ----- STORAGE -----
-    const STORAGE_KEY = 'chronos_presets_v1';
-    const ALL_IDS = [
-        'phys_mode','density','length','swirl',
-        'crepel','cforce','p1_ang','p1_dist','p1_force','p2_ang','p2_dist','p2_force',
-        'dam_scale','dam_turb','dam_ang', 
-        'hc_base', 'hc_inner', 'hc_outer', 'hc_shape', 'hc_force',
-        'kal_segs','kal_zoom','kal_comp',
-        'wav_ang', 'wav_len', 'wav_amp', 'wav_chop',
-        'pipe_rad', 'pipe_x', 'pipe_curl', 'pipe_lip',
-        'topo_scale','topo_warp',
-        'pat_radius'
-    ];
-    ringIds.forEach(rid => {
-        ALL_IDS.push('on_'+rid, 'pat_'+rid, 'c_'+rid, 'rot_'+rid, 'd_'+rid, 's_'+rid, 'z_'+rid, 'f_'+rid, 'sm_'+rid);
-        ALL_IDS.push('spin_'+rid); 
-        ALL_IDS.push('txt_on_'+rid, 'font_'+rid, 'ts_'+rid, 'tx_'+rid, 'ty_'+rid);
-    });
-
-    function getSettings() {
-        let s = {};
-        ALL_IDS.forEach(id => {
-            const el = document.getElementById(id);
-            if(el) { if(el.type === 'checkbox') s[id] = el.checked; else s[id] = el.value; }
-        });
-        return s;
-    }
-
-    function applySettings(s) {
-        if(!s) return;
-        ALL_IDS.forEach(id => {
-            if(s.hasOwnProperty(id)) {
-                const el = document.getElementById(id);
-                if(el) { if(el.type === 'checkbox') el.checked = s[id]; else el.value = s[id]; }
-            }
-        });
-        togglePhysics();
-        ringIds.forEach(rid => { toggle(rid); toggleCount(rid); });
-        uiChange();
-        requestGenerate();
-    }
-
-    function updatePresetList() {
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        const sel = document.getElementById('preset_list');
-        sel.innerHTML = '<option value="">Select a Preset...</option>';
-        Object.keys(stored).forEach(k => {
-            const opt = document.createElement('option'); opt.value = k; opt.innerText = k; sel.appendChild(opt);
-        });
-    }
-
-    function savePreset() {
-        const name = document.getElementById('preset_name').value.trim();
-        if(!name) return alert("Enter a name first!");
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        stored[name] = getSettings();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
-        updatePresetList();
-        alert(`Saved preset "${name}"`);
-    }
-
-    function loadPreset() {
-        const name = document.getElementById('preset_list').value;
-        if(!name) return;
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        if(stored[name]) applySettings(stored[name]);
-    }
-
-    function deletePreset() {
-        const name = document.getElementById('preset_list').value;
-        if(!name) return;
-        if(!confirm(`Delete "${name}"?`)) return;
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        delete stored[name];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
-        updatePresetList();
-        document.getElementById('preset_list').value = "";
-    }
-
-    // SHARED NOISE RESEED
-    function reseedNoise() {
-        Perlin.init(); 
-        requestGenerate();
+    // Helpers
+    function getChladni(x, y, n, m, k) {
+        let rx = x - cx, ry = y - cy;
+        return Math.cos(n * rx * k) * Math.cos(m * ry * k) - Math.cos(m * rx * k) * Math.cos(n * ry * k);
     }
     
-    function reseedTopo() { reseedNoise(); }
-
-    window.addEventListener('beforeunload', () => {
-        localStorage.setItem('chronos_autosave', JSON.stringify(getSettings()));
-    });
-
-    // ----- INIT -----
-    document.fonts.ready.then(() => {
-        const dot = document.getElementById('status-dot');
-        const txt = document.getElementById('status-text');
-        if(dot) { dot.classList.add('ready'); txt.innerText = "Fonts Ready"; }
-        const auto = localStorage.getItem('chronos_autosave');
-        if(auto) applySettings(JSON.parse(auto));
-        else requestGenerate();
-        updatePresetList();
-    });
-
-    // ----- CORE -----
-    function liveUpdate() {
-        uiChange();
-        if(debounceTimer) clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(generate, 50); 
+    function getInterference(x, y, freq, sep, rot) {
+        let rRad = rot * Math.PI / 180;
+        let p1x = cx + Math.cos(rRad) * sep, p1y = cy + Math.sin(rRad) * sep;
+        let p2x = cx - Math.cos(rRad) * sep, p2y = cy - Math.sin(rRad) * sep;
+        let d1 = Math.sqrt((x-p1x)**2 + (y-p1y)**2), d2 = Math.sqrt((x-p2x)**2 + (y-p2y)**2);
+        return Math.sin(d1 * freq) + Math.sin(d2 * freq);
     }
 
-    function updateFromNum(id) {
-        const numVal = document.getElementById('val_' + id).value;
-        const slider = document.getElementById(id);
-        if(slider) {
-            slider.value = numVal;
-            liveUpdate();
-        }
-    }
+    function generate() {
+        try {
+            const canvas = document.getElementById('canvas');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = 600 * dpr; canvas.height = 600 * dpr;
+            ctx.scale(dpr, dpr);
+            
+            const shape = document.getElementById('dial_shape').value;
+            const container = document.getElementById('main_canvas_container');
+            container.style.borderRadius = (shape === 'square') ? '10px' : '50%';
 
-    function requestGenerate() { generate(); }
+            document.fonts.ready.then(() => {
+                generateObstacles();
+                ctx.fillStyle = "#fff"; ctx.fillRect(0,0,width,height);
+                
+                ctx.fillStyle = "#f0f0f0"; ctx.strokeStyle="#ddd";
+                obstacles.forEach((o,i)=>{ drawShape(ctx, o, true); });
 
-    function toggle(id) {
-        const checkbox = document.getElementById('on_' + id);
-        const wrapper = document.getElementById('wrap_' + id);
-        if(checkbox.checked) wrapper.classList.remove('disabled');
-        else wrapper.classList.add('disabled');
-    }
-
-    function togglePhysics() {
-        const mode = document.getElementById('phys_mode').value;
-        const ringsDiv = document.getElementById('rings_wrapper');
-        
-        ['grp_center','grp_dipole','grp_damascus','grp_honeycomb','grp_kaleidoscope','grp_topo','grp_wave','grp_pipeline'].forEach(g => {
-            document.getElementById(g).classList.remove('active');
-        });
-        
-        if(mode === 'center') document.getElementById('grp_center').classList.add('active');
-        else if(mode === 'dipole') document.getElementById('grp_dipole').classList.add('active');
-        else if(mode === 'damascus') document.getElementById('grp_damascus').classList.add('active');
-        else if(mode === 'honeycomb') document.getElementById('grp_honeycomb').classList.add('active');
-        else if(mode === 'kaleidoscope') document.getElementById('grp_kaleidoscope').classList.add('active');
-        else if(mode === 'topo') document.getElementById('grp_topo').classList.add('active');
-        else if(mode === 'wave') document.getElementById('grp_wave').classList.add('active');
-        else if(mode === 'pipeline') document.getElementById('grp_pipeline').classList.add('active');
-
-        if (mode === 'honeycomb') ringsDiv.classList.add('rings-disabled');
-        else ringsDiv.classList.remove('rings-disabled');
-
-        requestGenerate();
-    }
-
-    function toggleCount(id) {
-        const pat = document.getElementById('pat_'+id).value;
-        const cntBox = document.getElementById('cnt_box_'+id);
-        if(pat === 'custom') cntBox.classList.remove('input-disabled');
-        else cntBox.classList.add('input-disabled');
-    }
-
-    function uiChange() {
-        ['swirl','crepel','cforce','density','length','hc_base','hc_inner','hc_outer','hc_force','kal_segs','kal_zoom','kal_comp','topo_scale','topo_warp','pat_radius',
-         'wav_ang','wav_len','wav_amp','wav_chop',
-         'pipe_rad','pipe_x','pipe_curl','pipe_lip'
-        ].forEach(id => {
-            const el = document.getElementById(id);
-            if(el) document.getElementById('val_'+id).value = el.value;
-        });
-        
-        ['p1','p2'].forEach(p => {
-            document.getElementById(`val_${p}_ang`).value = document.getElementById(`${p}_ang`).value;
-            document.getElementById(`val_${p}_dist`).value = document.getElementById(`${p}_dist`).value;
-            document.getElementById(`val_${p}_force`).value = document.getElementById(`${p}_force`).value;
-        });
-
-        document.getElementById('val_dam_scale').value = document.getElementById('dam_scale').value;
-        document.getElementById('val_dam_turb').value = document.getElementById('dam_turb').value;
-        document.getElementById('val_dam_ang').value = document.getElementById('dam_ang').value;
-
-        ringIds.forEach(id => {
-            ['c','rot','d','z','f','spin','sm','ts','tx','ty'].forEach(k => {
-                const el = document.getElementById(k+'_'+id);
-                if(el) {
-                    document.getElementById('val_'+k+'_'+id).value = el.value;
+                const dens = parseInt(document.getElementById('density').value);
+                const len = parseInt(document.getElementById('length').value);
+                const mode = document.getElementById('phys_mode').value;
+                const patRadius = parseInt(document.getElementById('pat_radius').value); 
+                
+                // Pre-calc mode vars
+                let is_gravity = false, c_rad = 0, p1x, p1y, p1f, p2x, p2y, p2f;
+                if(mode === 'center') {
+                    c_rad = parseInt(document.getElementById('crepel').value);
+                    const c_force = parseFloat(document.getElementById('cforce').value);
+                    if(c_force < 0) is_gravity = true;
+                } else if(mode === 'dipole') {
+                    p1f = parseFloat(document.getElementById('p1_force').value);
+                    p2f = parseFloat(document.getElementById('p2_force').value);
+                    const p1a = parseInt(document.getElementById('p1_ang').value) * (Math.PI/180) - Math.PI/2;
+                    const p1d = parseInt(document.getElementById('p1_dist').value);
+                    p1x = cx + Math.cos(p1a)*p1d; p1y = cy + Math.sin(p1a)*p1d;
+                    const p2a = parseInt(document.getElementById('p2_ang').value) * (Math.PI/180) - Math.PI/2;
+                    const p2d = parseInt(document.getElementById('p2_dist').value);
+                    p2x = cx + Math.cos(p2a)*p2d; p2y = cy + Math.sin(p2a)*p2d;
                 }
+
+                paths = [];
+                ctx.strokeStyle = "rgba(0,0,0,0.6)"; ctx.lineWidth = 0.5;
+                
+                for(let i=0; i<dens; i++) {
+                    let px, py;
+                    if (shape === 'square') {
+                        px = cx + (Math.random() - 0.5) * 2 * patRadius;
+                        py = cy + (Math.random() - 0.5) * 2 * patRadius;
+                    } else {
+                        let r = Math.sqrt(Math.random()) * patRadius;
+                        if(is_gravity && Math.random() > 0.3 && mode === 'center') r = (patRadius - 10) - (Math.random() * 100);
+                        let th = Math.random() * Math.PI * 2;
+                        px = cx + Math.cos(th)*r; py = cy + Math.sin(th)*r;
+                    }
+                    
+                    let bad = false;
+                    for(let o of obstacles) if(Math.sqrt((px-o.x)**2 + (py-o.y)**2) < o.r) bad=true;
+                    if (mode==='center' && !is_gravity && Math.sqrt((px-cx)**2 + (py-cy)**2) < c_rad * 0.5) bad = true;
+                    
+                    if(bad) continue;
+                    
+                    let path = [{x:px, y:py}];
+                    ctx.beginPath(); ctx.moveTo(px, py);
+                    
+                    for(let s=0; s<len; s++) {
+                        let v = getFieldVector(px, py);
+                        px += v.x; py += v.y;
+                        
+                        let crash = false;
+                        for(let o of obstacles) if(Math.sqrt((px-o.x)**2 + (py-o.y)**2) < Math.min(o.w, o.h)*0.95) crash=true;
+                        if(mode === 'center' && is_gravity && Math.sqrt((px-cx)**2 + (py-cy)**2) < 8) crash = true;
+                        if(mode === 'dipole') {
+                            if (p1f < 0 && Math.sqrt((px-p1x)**2 + (py-p1y)**2) < 10) crash = true;
+                            if (p2f < 0 && Math.sqrt((px-p2x)**2 + (py-p2y)**2) < 10) crash = true;
+                        }
+
+                        if(crash || px<0 || px>width || py<0 || py>height) break;
+                        
+                        path.push({x:px, y:py});
+                        ctx.lineTo(px, py);
+                    }
+                    ctx.stroke();
+                    paths.push(path);
+                }
+                
+                ctx.strokeStyle = "#000"; ctx.lineWidth=2; 
+                obstacles.forEach((o,i)=>{ drawShape(ctx, o, true); });
+                
+                ctx.beginPath();
+                if (shape === 'square') ctx.rect(cx - 298, cy - 298, 596, 596);
+                else ctx.arc(cx, cy, 298, 0, Math.PI*2);
+                ctx.stroke();
             });
-        });
-    }
-
-    function drawShape(ctx, o, fill) {
-        ctx.save();
-        ctx.translate(o.x, o.y);
-        ctx.rotate(o.angle);
-        ctx.beginPath();
-        if(o.type==='round') ctx.arc(0,0, o.w, 0, Math.PI*2);
-        else if(o.type==='square') ctx.rect(-o.w,-o.w, o.w*2, o.w*2);
-        else if(o.type==='baton') {
-            let x=-o.w/2, y=-o.h/2, w=o.w, h=o.h, r=o.w/2;
-            ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
-            ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
-            ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
-            ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
-        } else if(o.type==='diamond') {
-             ctx.moveTo(0, -o.h/1.5); ctx.lineTo(o.w/1.5, 0); ctx.lineTo(0, o.h/1.5); ctx.lineTo(-o.w/1.5, 0); ctx.closePath();
-        } else if (o.type==='hexagon') {
-            for (let i = 0; i < 6; i++) {
-                ctx.lineTo(o.w * Math.cos(i * Math.PI / 3), o.w * Math.sin(i * Math.PI / 3));
-            }
-            ctx.closePath();
-        }
-        
-        if(fill) { ctx.fillStyle = "#fff"; ctx.fill(); ctx.stroke(); }
-        ctx.restore();
-
-        if(o.text) {
-            ctx.save();
-            ctx.fillStyle = "#000";
-            ctx.font = `400 ${o.textSize}px '${o.font}'`; 
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(o.textVal, o.x + o.tx, o.y + o.ty); 
-            ctx.restore();
+        } catch (e) {
+            console.error("Gen Error", e);
+            document.getElementById('status-text').innerText = "Error!";
         }
     }
 
     function generateObstacles() {
         obstacles = [];
         const mode = document.getElementById('phys_mode').value;
+        const shape = document.getElementById('dial_shape').value;
 
         if (mode === 'honeycomb') {
             const hBase = parseInt(document.getElementById('hc_base').value);
@@ -743,7 +505,12 @@
                     if (row % 2 !== 0) xx += spacingX / 2;
                     xx += cx; yy += cy;
                     let distToCenter = Math.sqrt((xx-cx)**2 + (yy-cy)**2);
-                    if (distToCenter < 280) {
+                    
+                    let inside = false;
+                    if (shape === 'square') { if (Math.abs(xx-cx) < 280 && Math.abs(yy-cy) < 280) inside = true; } 
+                    else { if (distToCenter < 280) inside = true; }
+
+                    if (inside) {
                         let normDist = distToCenter / 280; if (normDist > 1) normDist = 1;
                         let currentSize = hInner + (hOuter - hInner) * normDist;
                         obstacles.push({
@@ -804,18 +571,15 @@
     }
 
     function getFieldVector(x, y) {
-        let nx = x - cx;
-        let ny = y - cy;
+        let nx = x - cx; let ny = y - cy;
         let dist = Math.sqrt(nx*nx + ny*ny);
         
         const swirl = parseFloat(document.getElementById('swirl').value);
         let ang = Math.atan2(ny, nx) + (swirl * dist / 300);
-        let vx = Math.cos(ang);
-        let vy = Math.sin(ang);
+        let vx = Math.cos(ang); let vy = Math.sin(ang);
 
         const mode = document.getElementById('phys_mode').value;
 
-        // --- 1. CALCULATE BASE FIELD ---
         if (mode === 'center') {
             const c_rad = parseInt(document.getElementById('crepel').value);
             const c_force = parseFloat(document.getElementById('cforce').value);
@@ -852,60 +616,70 @@
             const kSegs = parseInt(document.getElementById('kal_segs').value);
             const kZoom = parseFloat(document.getElementById('kal_zoom').value);
             const kComp = parseFloat(document.getElementById('kal_comp').value);
-            
             let dx = x - cx; let dy = y - cy;
             let r = Math.sqrt(dx*dx + dy*dy);
             let theta = Math.atan2(dy, dx);
             if (theta < 0) theta += Math.PI * 2;
-            
             const slice = (Math.PI * 2) / kSegs;
             let segIdx = Math.floor(theta / slice);
             let localTheta = theta % slice;
             if (localTheta > slice/2) localTheta = slice - localTheta;
-            
             let swirlOffset = (swirl * r / 300);
             let nSx = cx + Math.cos(localTheta + swirlOffset) * r;
             let nSy = cy + Math.sin(localTheta + swirlOffset) * r;
-            
             let n = Perlin.noise(nSx * kZoom, nSy * kZoom, 0);
             let rot = n * kComp;
-            
             let baseVx = Math.cos(localTheta + swirlOffset);
             let baseVy = Math.sin(localTheta + swirlOffset);
-            
             let lvx = baseVx * Math.cos(rot) - baseVy * Math.sin(rot);
             let lvy = baseVx * Math.sin(rot) + baseVy * Math.cos(rot);
-            
             let finalRot = segIdx * slice;
             vx = lvx * Math.cos(finalRot) - lvy * Math.sin(finalRot);
             vy = lvx * Math.sin(finalRot) + lvy * Math.cos(finalRot);
-
         } else if (mode === 'topo') {
             const tScale = parseFloat(document.getElementById('topo_scale').value);
             const tWarp = parseFloat(document.getElementById('topo_warp').value);
-            
-            let nx = x * tScale; let ny = y * tScale;
-            let qx = Perlin.noise(nx + 0.0, ny + 0.0, 0);
-            let qy = Perlin.noise(nx + 5.2, ny + 1.3, 0);
-            
-            let finalX = nx + tWarp * qx;
-            let finalY = ny + tWarp * qy;
-            
+            let nx_ = x * tScale; let ny_ = y * tScale;
+            let qx = Perlin.noise(nx_ + 0.0, ny_ + 0.0, 0);
+            let qy = Perlin.noise(nx_ + 5.2, ny_ + 1.3, 0);
+            let finalX = nx_ + tWarp * qx;
+            let finalY = ny_ + tWarp * qy;
             const eps = 0.01;
             let n1 = Perlin.noise(finalX, finalY, 0);
             let n2 = Perlin.noise(finalX + eps, finalY, 0);
             let n3 = Perlin.noise(finalX, finalY + eps, 0);
-            
             let dx = (n2 - n1) / eps;
             let dy = (n3 - n1) / eps;
-            
+            vx = -dy; vy = dx;
+        } else if (mode === 'cymatics') {
+            const n = parseFloat(document.getElementById('cym_n').value);
+            const m = parseFloat(document.getElementById('cym_m').value);
+            const k = parseFloat(document.getElementById('cym_k').value);
+            const eps = 0.5; 
+            let v_x_plus = getChladni(x + eps, y, n, m, k);
+            let v_x_minus = getChladni(x - eps, y, n, m, k);
+            let v_y_plus = getChladni(x, y + eps, n, m, k);
+            let v_y_minus = getChladni(x, y - eps, n, m, k);
+            let dx = (v_x_plus - v_x_minus) / (2 * eps);
+            let dy = (v_y_plus - v_y_minus) / (2 * eps);
+            vx = -dy; vy = dx; 
+        } else if (mode === 'interference') {
+            const iFreq = parseFloat(document.getElementById('int_freq').value);
+            const iSep = parseFloat(document.getElementById('int_sep').value);
+            const iRot = parseFloat(document.getElementById('int_rot').value);
+            const eps = 0.5;
+            let v_x_plus = getInterference(x + eps, y, iFreq, iSep, iRot);
+            let v_x_minus = getInterference(x - eps, y, iFreq, iSep, iRot);
+            let v_y_plus = getInterference(x, y + eps, iFreq, iSep, iRot);
+            let v_y_minus = getInterference(x, y - eps, iFreq, iSep, iRot);
+            let dx = (v_x_plus - v_x_minus) / (2 * eps);
+            let dy = (v_y_plus - v_y_minus) / (2 * eps);
             vx = -dy; vy = dx;
         } else if (mode === 'wave') {
             const wAng = parseFloat(document.getElementById('wav_ang').value) * (Math.PI/180);
             const wLen = parseFloat(document.getElementById('wav_len').value);
             const wAmp = parseFloat(document.getElementById('wav_amp').value);
             const wChop = parseFloat(document.getElementById('wav_chop').value);
-            
             let ca = Math.cos(wAng); let sa = Math.sin(wAng);
             let rx = x * ca + y * sa; 
             let n = Perlin.noise(x * 0.01, y * 0.01, 0) * wChop;
@@ -913,63 +687,36 @@
             vx = ca - sa * curve;
             vy = sa + ca * curve;
         } else if (mode === 'pipeline') {
-            // NEW PIPELINE: BARREL VIEW
-            const pRad = parseFloat(document.getElementById('pipe_rad').value);
+             const pRad = parseFloat(document.getElementById('pipe_rad').value);
             const pX = parseFloat(document.getElementById('pipe_x').value);
             const pCurl = parseFloat(document.getElementById('pipe_curl').value);
             const pLip = parseFloat(document.getElementById('pipe_lip').value);
-
-            // Shift focus point
             let tx = x - (cx + pX);
             let ty = y - cy;
-            
-            // Polar coordinates from barrel center
             let r = Math.sqrt(tx*tx + ty*ty);
             let theta = Math.atan2(ty, tx);
-
-            // Progressive Spiral Angle (The "Looking Down The Barrel" Math)
-            // Logarithmic spiral angle depends on distance from center
-            // At center (r=0), angle is steep. As r increases, angle flattens.
-            // pCurl controls how "tight" the spiral is.
-            
             let spiralAngle = theta + Math.PI/2 + (pCurl * Math.log(r/pRad));
-            
-            // Calculate base vector from spiral angle
             let svx = Math.cos(spiralAngle);
             let svy = Math.sin(spiralAngle);
-            
-            // Asymmetry: Gravity Bias on Top (Lip)
-            // If y < 0 (top half), add downward vector to simulate lip throwing over
             if (ty < 0) {
-                // Stronger effect as x approaches 0 (the peak)
                 let gravityStrength = pLip * (1 - Math.abs(tx)/300);
                 if (gravityStrength < 0) gravityStrength = 0;
                 svy += gravityStrength; 
             }
-
-            vx = svx;
-            vy = svy;
+            vx = svx; vy = svy;
         }
 
-        // --- 2. ACCUMULATE OBSTACLE INFLUENCE ---
-        let total_dx = 0;
-        let total_dy = 0;
-
-        obstacles.forEach((o, i) => {
-            let dx = x - o.x;
-            let dy = y - o.y;
+        // Obstacles
+        let total_dx = 0, total_dy = 0;
+        for(let o of obstacles) {
+            let dx = x - o.x; let dy = y - o.y;
             let d = Math.sqrt(dx*dx + dy*dy);
             let fieldRadius = Math.max(o.w, o.h) * (0.8 + o.smooth); 
-            
             if(d < fieldRadius && d > 0) {
                 let nx = dx / d, ny = dy / d;
-                
-                // Use current BASE vx/vy for dot product to ensure symmetry
                 let dot = vx * nx + vy * ny;
-                
                 let proximity = (fieldRadius - d) / fieldRadius;
                 proximity = proximity * proximity * proximity; 
-                
                 let repX = 0, repY = 0;
                 if (dot < 0) {
                     repX -= nx * dot * proximity * 1.5;
@@ -977,131 +724,21 @@
                 }
                 repX += nx * o.force * proximity * 0.5;
                 repY += ny * o.force * proximity * 0.5;
-
                 let spinX = 0, spinY = 0;
                 if (o.spin && o.spin !== 0) {
-                    let tx = -ny; 
-                    let ty = nx;
+                    let tx = -ny; let ty = nx;
                     spinX += tx * o.spin * proximity * 2.0;
                     spinY += ty * o.spin * proximity * 2.0;
                 }
-                
                 total_dx += repX + spinX;
                 total_dy += repY + spinY;
             }
-        });
-
-        vx += total_dx;
-        vy += total_dy;
+        }
+        vx += total_dx; vy += total_dy;
 
         let l = Math.sqrt(vx*vx + vy*vy);
         if(l>0) { vx/=l; vy/=l; }
         return {x:vx*2, y:vy*2};
-    }
-
-    function generate() {
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = 600 * dpr;
-        canvas.height = 600 * dpr;
-        ctx.scale(dpr, dpr);
-
-        document.fonts.ready.then(() => {
-            generateObstacles();
-            ctx.fillStyle = "#fff";
-            ctx.fillRect(0,0,width,height);
-            
-            ctx.fillStyle = "#f0f0f0"; ctx.strokeStyle="#ddd";
-            obstacles.forEach((o,i)=>{ drawShape(ctx, o, true); });
-
-            const dens = parseInt(document.getElementById('density').value);
-            const len = parseInt(document.getElementById('length').value);
-            const mode = document.getElementById('phys_mode').value;
-            const patRadius = parseInt(document.getElementById('pat_radius').value); 
-            
-            let is_gravity = false;
-            let c_rad = 0;
-            if(mode === 'center') {
-                c_rad = parseInt(document.getElementById('crepel').value);
-                const c_force = parseFloat(document.getElementById('cforce').value);
-                if(c_force < 0) is_gravity = true;
-            }
-            
-            let p1x, p1y, p1f, p2x, p2y, p2f;
-            if(mode === 'dipole') {
-                p1f = parseFloat(document.getElementById('p1_force').value);
-                p2f = parseFloat(document.getElementById('p2_force').value);
-                const p1a = parseInt(document.getElementById('p1_ang').value) * (Math.PI/180) - Math.PI/2;
-                const p1d = parseInt(document.getElementById('p1_dist').value);
-                p1x = cx + Math.cos(p1a)*p1d; p1y = cy + Math.sin(p1a)*p1d;
-                const p2a = parseInt(document.getElementById('p2_ang').value) * (Math.PI/180) - Math.PI/2;
-                const p2d = parseInt(document.getElementById('p2_dist').value);
-                p2x = cx + Math.cos(p2a)*p2d; p2y = cy + Math.sin(p2a)*p2d;
-            }
-
-            paths = [];
-            ctx.strokeStyle = "rgba(0,0,0,0.6)";
-            ctx.lineWidth = 0.5;
-            
-            for(let i=0; i<dens; i++) {
-                // FIX FOR CENTER DENSITY: Uniform Disk Sampling
-                // r = sqrt(random) * radius ensures uniform distribution
-                let r = Math.sqrt(Math.random()) * patRadius;
-                
-                // Exceptions for specific visual effects
-                if(is_gravity && Math.random() > 0.3) {
-                     r = (patRadius - 10) - (Math.random() * 100);
-                }
-
-                let th = Math.random() * Math.PI * 2;
-                let px = cx + Math.cos(th)*r;
-                let py = cy + Math.sin(th)*r;
-                
-                let bad = false;
-                for(let o of obstacles) {
-                    if(Math.sqrt((px-o.x)**2 + (py-o.y)**2) < o.r) bad=true;
-                }
-                if (mode==='center' && !is_gravity && Math.sqrt((px-cx)**2 + (py-cy)**2) < c_rad * 0.5) bad = true;
-                
-                if(bad) continue;
-                
-                let path = [{x:px, y:py}];
-                ctx.beginPath();
-                ctx.moveTo(px, py);
-                
-                for(let s=0; s<len; s++) {
-                    let v = getFieldVector(px, py);
-                    px += v.x; py += v.y;
-                    
-                    let crash = false;
-                    for(let o of obstacles) {
-                        if(Math.sqrt((px-o.x)**2 + (py-o.y)**2) < Math.min(o.w, o.h)*0.95) crash=true;
-                    }
-                    if(mode === 'center' && is_gravity && Math.sqrt((px-cx)**2 + (py-cy)**2) < 8) crash = true;
-                    if(mode === 'dipole') {
-                        if (p1f < 0 && Math.sqrt((px-p1x)**2 + (py-p1y)**2) < 10) crash = true;
-                        if (p2f < 0 && Math.sqrt((px-p2x)**2 + (py-p2y)**2) < 10) crash = true;
-                    }
-
-                    if(crash) break;
-                    if(px<0||px>width||py<0||py>height) break;
-                    
-                    path.push({x:px, y:py});
-                    ctx.lineTo(px, py);
-                }
-                ctx.stroke();
-                paths.push(path);
-            }
-            
-            ctx.strokeStyle = "#000"; ctx.lineWidth=2; 
-            obstacles.forEach((o,i)=>{ drawShape(ctx, o, true); });
-            
-            if(mode === 'dipole') {
-                ctx.beginPath(); ctx.arc(p1x, p1y, 5, 0, Math.PI*2); ctx.fillStyle="orange"; ctx.fill();
-                ctx.beginPath(); ctx.arc(p2x, p2y, 5, 0, Math.PI*2); ctx.fillStyle="#0099ff"; ctx.fill();
-            }
-            
-            ctx.beginPath(); ctx.arc(cx, cy, 298, 0, Math.PI*2); ctx.stroke();
-        });
     }
 
     function getSvgShape(o) {
@@ -1122,41 +759,223 @@
             }
             s = `<polygon points="${pts.trim()}" transform="translate(${x},${y}) rotate(${rot})"/>`;
         }
-        
-        if(o.text) {
-            s += `<text x="${o.x + o.tx}" y="${o.y + o.ty}" font-family="'${o.font}'" font-weight="400" font-size="${o.textSize}" text-anchor="middle" dominant-baseline="central" fill="black" stroke="none">${o.textVal}</text>`;
-        }
+        if(o.text) s += `<text x="${o.x + o.tx}" y="${o.y + o.ty}" font-family="'${o.font}'" font-weight="400" font-size="${o.textSize}" text-anchor="middle" dominant-baseline="central" fill="black" stroke="none">${o.textVal}</text>`;
         return s;
     }
 
+    function drawShape(ctx, o, fill) {
+        ctx.save();
+        ctx.translate(o.x, o.y);
+        ctx.rotate(o.angle);
+        ctx.beginPath();
+        if(o.type==='round') ctx.arc(0,0, o.w, 0, Math.PI*2);
+        else if(o.type==='square') ctx.rect(-o.w,-o.w, o.w*2, o.w*2);
+        else if(o.type==='baton') {
+            let x=-o.w/2, y=-o.h/2, w=o.w, h=o.h, r=o.w/2;
+            ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+            ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+            ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+            ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
+        } else if(o.type==='diamond') {
+             ctx.moveTo(0, -o.h/1.5); ctx.lineTo(o.w/1.5, 0); ctx.lineTo(0, o.h/1.5); ctx.lineTo(-o.w/1.5, 0); ctx.closePath();
+        } else if (o.type==='hexagon') {
+            for (let i = 0; i < 6; i++) {
+                ctx.lineTo(o.w * Math.cos(i * Math.PI / 3), o.w * Math.sin(i * Math.PI / 3));
+            }
+            ctx.closePath();
+        }
+        if(fill) { ctx.fillStyle = "#fff"; ctx.fill(); ctx.stroke(); }
+        ctx.restore();
+        if(o.text) {
+            ctx.save();
+            ctx.fillStyle = "#000";
+            ctx.font = `400 ${o.textSize}px '${o.font}'`; 
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(o.textVal, o.x + o.tx, o.y + o.ty); 
+            ctx.restore();
+        }
+    }
+
     function downloadSVG() {
+        const shape = document.getElementById('dial_shape').value;
+        let clipDef = (shape === 'square') ? `<rect x="${cx-298}" y="${cy-298}" width="596" height="596" />` : `<circle cx="${cx}" cy="${cy}" r="298" />`;
+        let border = (shape === 'square') ? `<rect x="${cx-298}" y="${cy-298}" width="596" height="596" fill="none" stroke-width="4"/>` : `<circle cx="${cx}" cy="${cy}" r="298" fill="none" stroke-width="4"/>`;
+
         let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
         svg += `<style>@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400&amp;family=Cinzel:wght@400;700&amp;family=Great+Vibes&amp;family=Italiana&amp;family=Julius+Sans+One&amp;family=Montserrat:wght@300;400;700&amp;family=Philosopher:ital,wght@0,400;0,700;1,400&amp;family=Pinyon+Script&amp;display=swap');</style>`;
-        svg += `<defs><clipPath id="dialClip"><circle cx="${cx}" cy="${cy}" r="298" /></clipPath></defs>`;
+        svg += `<defs><clipPath id="dialClip">${clipDef}</clipPath></defs>`;
         svg += `<rect width="100%" height="100%" fill="white"/>`;
         svg += `<g fill="none" stroke="black" stroke-width="0.5" opacity="0.8" clip-path="url(#dialClip)">`;
+        
         paths.forEach(p => {
-            if(p.length<2) return;
-            let d=`M${p[0].x.toFixed(1)},${p[0].y.toFixed(1)}`;
-            for(let i=1; i<p.length; i++) d+=` L${p[i].x.toFixed(1)},${p[i].y.toFixed(1)}`;
+            if(p.length < 2) return;
+            let d = `M${p[0].x.toFixed(2)},${p[0].y.toFixed(2)}`;
+            for (let i = 1; i < p.length - 1; i++) {
+                const midX = (p[i].x + p[i+1].x) / 2;
+                const midY = (p[i].y + p[i+1].y) / 2;
+                d += ` Q${p[i].x.toFixed(2)},${p[i].y.toFixed(2)} ${midX.toFixed(2)},${midY.toFixed(2)}`;
+            }
+            d += ` L${p[p.length-1].x.toFixed(2)},${p[p.length-1].y.toFixed(2)}`;
             svg += `<path d="${d}"/>`;
         });
+        
         svg += `</g>`;
         svg += `<g fill="white" stroke="black" stroke-width="2">`;
         obstacles.forEach((o,i)=>{ svg += getSvgShape(o); });
-        svg += `<circle cx="${cx}" cy="${cy}" r="298" fill="none" stroke-width="4"/>`;
+        svg += border;
         svg += `</g></svg>`;
+        
         const blob = new Blob([svg], {type:"image/svg+xml"});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href=url; a.download="chronos_v52.svg";
+        a.href=url; a.download="chronos_v63.svg";
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
     }
 
-    uiChange();
-    togglePhysics(); 
-    toggleCount('r1'); toggleCount('r2'); toggleCount('r3');
-    generate();
+    function reseedNoise() { Perlin.init(); requestGenerate(); }
+    function reseedTopo() { reseedNoise(); }
+    function liveUpdate() { uiChange(); if(debounceTimer) clearTimeout(debounceTimer); debounceTimer = setTimeout(generate, 50); }
+    function updateFromNum(id) { document.getElementById(id).value = document.getElementById('val_'+id).value; liveUpdate(); }
+    function requestGenerate() { generate(); }
+    function toggle(id) { 
+        const cb = document.getElementById('on_'+id); 
+        const wrap = document.getElementById('wrap_'+id);
+        if(cb.checked) wrap.classList.remove('disabled'); else wrap.classList.add('disabled');
+    }
+
+    function togglePhysics() {
+        const mode = document.getElementById('phys_mode').value;
+        const ringsDiv = document.getElementById('rings_wrapper');
+        document.querySelectorAll('.phys-group').forEach(el => el.classList.remove('active'));
+        const activeGroup = document.getElementById('grp_' + mode);
+        if(activeGroup) activeGroup.classList.add('active');
+        if (mode === 'honeycomb') ringsDiv.classList.add('rings-disabled'); else ringsDiv.classList.remove('rings-disabled');
+        requestGenerate();
+    }
+
+    function toggleCount(id) {
+        const pat = document.getElementById('pat_'+id).value;
+        const cntBox = document.getElementById('cnt_box_'+id);
+        if(pat === 'custom') cntBox.classList.remove('input-disabled'); else cntBox.classList.add('input-disabled');
+    }
+
+    function uiChange() {
+        const ids = ['swirl','crepel','cforce','density','length','hc_base','hc_inner','hc_outer','hc_force','kal_segs','kal_zoom','kal_comp','topo_scale','topo_warp','pat_radius','wav_ang','wav_len','wav_amp','wav_chop','pipe_rad','pipe_x','pipe_curl','pipe_lip','cym_n','cym_m','cym_k','int_freq','int_sep','int_rot'];
+        ids.forEach(id => {
+             const el = document.getElementById(id);
+             if(el) document.getElementById('val_'+id).value = el.value;
+        });
+        ['p1','p2'].forEach(p => {
+            ['ang','dist','force'].forEach(k => {
+                document.getElementById('val_'+p+'_'+k).value = document.getElementById(p+'_'+k).value;
+            });
+        });
+        document.getElementById('val_dam_scale').value = document.getElementById('dam_scale').value;
+        document.getElementById('val_dam_turb').value = document.getElementById('dam_turb').value;
+        document.getElementById('val_dam_ang').value = document.getElementById('dam_ang').value;
+        ringIds.forEach(id => {
+            ['c','rot','d','z','f','spin','sm','ts','tx','ty'].forEach(k => {
+                const el = document.getElementById(k+'_'+id);
+                if(el) document.getElementById('val_'+k+'_'+id).value = el.value;
+            });
+        });
+    }
+
+    // Save/Load
+    function getSettings() {
+        let s = {};
+        document.querySelectorAll('input, select').forEach(el => {
+            if(el.type !== 'file' && el.type !== 'button') {
+                s[el.id] = (el.type === 'checkbox') ? el.checked : el.value;
+            }
+        });
+        return s;
+    }
+
+    function applySettings(s) {
+        if(!s) return;
+        Object.keys(s).forEach(key => {
+            const el = document.getElementById(key);
+            if(el) {
+                if(el.type === 'checkbox') el.checked = s[key]; else el.value = s[key];
+            }
+        });
+        togglePhysics();
+        ringIds.forEach(rid => { toggle(rid); toggleCount(rid); });
+        uiChange();
+        requestGenerate();
+    }
+
+    function savePreset() {
+        const name = document.getElementById('preset_name').value.trim();
+        if(!name) return alert("Enter name!");
+        const stored = JSON.parse(localStorage.getItem('chronos_presets') || '{}');
+        stored[name] = getSettings();
+        localStorage.setItem('chronos_presets', JSON.stringify(stored));
+        updatePresetList();
+    }
+    
+    function loadPreset() {
+        const name = document.getElementById('preset_list').value;
+        if(!name) return;
+        const stored = JSON.parse(localStorage.getItem('chronos_presets') || '{}');
+        if(stored[name]) applySettings(stored[name]);
+    }
+
+    function updatePresetList() {
+        const stored = JSON.parse(localStorage.getItem('chronos_presets') || '{}');
+        const sel = document.getElementById('preset_list');
+        sel.innerHTML = '<option value="">Select Preset...</option>';
+        Object.keys(stored).forEach(k => {
+            const opt = document.createElement('option'); opt.value = k; opt.innerText = k; sel.appendChild(opt);
+        });
+    }
+
+    function deletePreset() {
+        const name = document.getElementById('preset_list').value;
+        if(!name || !confirm("Delete?")) return;
+        const stored = JSON.parse(localStorage.getItem('chronos_presets') || '{}');
+        delete stored[name];
+        localStorage.setItem('chronos_presets', JSON.stringify(stored));
+        updatePresetList();
+    }
+
+    function exportJSON() {
+        const data = JSON.stringify(getSettings(), null, 2);
+        const blob = new Blob([data], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = "chronos_config.json";
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+
+    function importJSON() { document.getElementById('import_file').click(); }
+    
+    function handleFile(input) {
+        const file = input.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const settings = JSON.parse(e.target.result);
+                applySettings(settings);
+            } catch(err) { alert("Invalid JSON"); }
+        };
+        reader.readAsText(file);
+    }
+
+    // Init
+    document.fonts.ready.then(() => {
+        const dot = document.getElementById('status-dot');
+        const txt = document.getElementById('status-text');
+        if(dot) { dot.classList.add('ready'); txt.innerText = "Fonts Ready"; }
+        uiChange();
+        togglePhysics(); 
+        toggleCount('r1'); toggleCount('r2'); toggleCount('r3');
+        generate();
+        updatePresetList();
+    });
 
 </script>
 </body>
